@@ -7,7 +7,10 @@ RTP = (
     b'\x00\x00\x00\x00'  # timestamp
     b'\x00\x00\x30\x39'  # ssrc: 12345
 ) + (b'\xd4' * 160)
-
+RTCP = (
+    b'\x80\xc8\x00\x06\xf3\xcb\x20\x01\x83\xab\x03\xa1\xeb\x02\x0b\x3a'
+    b'\x00\x00\x94\x20\x00\x00\x00\x9e\x00\x00\x9b\x88'
+)
 
 # Set key to predetermined value
 KEY = (
@@ -82,6 +85,32 @@ class SessionTest(TestCase):
         unprotected = rx_session.unprotect(protected)
         self.assertEqual(len(unprotected), 172)
         self.assertEqual(unprotected, RTP)
+
+    def test_rtcp_any_ssrc(self):
+        # protect RCTP
+        tx_session = Session(policy=Policy(
+            key=KEY,
+            ssrc_type=Policy.SSRC_ANY_OUTBOUND))
+        protected = tx_session.protect_rtcp(RTCP)
+        self.assertEqual(len(protected), 42)
+
+        # bad type
+        with self.assertRaises(TypeError) as cm:
+            tx_session.protect_rtcp(4567)
+        self.assertEqual(str(cm.exception), 'data must be bytes')
+
+        # bad length
+        with self.assertRaises(ValueError) as cm:
+            tx_session.protect_rtcp(b'0' * 1500)
+        self.assertEqual(str(cm.exception), 'data is too long')
+
+        # unprotect RTCP
+        rx_session = Session(policy=Policy(
+            key=KEY,
+            ssrc_type=Policy.SSRC_ANY_INBOUND))
+        unprotected = rx_session.unprotect_rtcp(protected)
+        self.assertEqual(len(unprotected), 28)
+        self.assertEqual(unprotected, RTCP)
 
     def test_rtp_specific_ssrc(self):
         # protect RTP
