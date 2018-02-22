@@ -63,9 +63,9 @@ class Policy:
 
     @property
     def key(self):
-        if self.__cdata:
-            return ffi.buffer(self.__cdata)
-        return b''
+        if self.__cdata is None:
+            return None
+        return ffi.buffer(self.__cdata)
 
     @key.setter
     def key(self, key):

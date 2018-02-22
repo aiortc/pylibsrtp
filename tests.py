@@ -21,10 +21,16 @@ KEY = (
 class PolicyTest(TestCase):
     def test_key(self):
         policy = Policy()
-        self.assertEqual(policy.key, b'')
+        self.assertEqual(policy.key, None)
 
         policy.key = KEY
         self.assertEqual(policy.key, KEY)
+
+        policy.key = None
+        self.assertEqual(policy.key, None)
+
+        with self.assertRaises(TypeError):
+            policy.key = 1234
 
     def test_ssrc_type(self):
         policy = Policy()
