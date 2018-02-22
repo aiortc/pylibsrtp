@@ -50,7 +50,7 @@ class Policy:
     SSRC_ANY_INBOUND = _lib.ssrc_any_inbound
     SSRC_ANY_OUTBOUND = _lib.ssrc_any_outbound
 
-    def __init__(self, key=None, ssrc_type=SSRC_UNDEFINED):
+    def __init__(self, key=None, ssrc_type=SSRC_UNDEFINED, ssrc_value=0):
         self._policy = ffi.new('srtp_policy_t *')
         _lib.srtp_crypto_policy_set_rtp_default(
             ffi.addressof(self._policy.rtp))
@@ -59,6 +59,7 @@ class Policy:
 
         self.key = key
         self.ssrc_type = ssrc_type
+        self.ssrc_value = ssrc_value
 
     @property
     def key(self):
@@ -86,6 +87,14 @@ class Policy:
     @ssrc_type.setter
     def ssrc_type(self, ssrc_type):
         self._policy.ssrc.type = ssrc_type
+
+    @property
+    def ssrc_value(self):
+        return self._policy.ssrc.value
+
+    @ssrc_value.setter
+    def ssrc_value(self, ssrc_value):
+        self._policy.ssrc.value = ssrc_value
 
 
 class Session:

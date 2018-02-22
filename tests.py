@@ -5,7 +5,7 @@ from pylibsrtp import Policy, Session
 RTP = (
     b'\x80\x08\x00\x00'  # version, packet type, sequence number
     b'\x00\x00\x00\x00'  # timestamp
-    b'\x00\x00\x00\x00'  # ssrc
+    b'\x00\x00\x30\x39'  # ssrc: 12345
 ) + (b'\xd4' * 160)
 
 
@@ -33,9 +33,16 @@ class PolicyTest(TestCase):
         policy.ssrc_type = Policy.SSRC_ANY_INBOUND
         self.assertEqual(policy.ssrc_type, Policy.SSRC_ANY_INBOUND)
 
+    def test_ssrc_value(self):
+        policy = Policy()
+        self.assertEqual(policy.ssrc_value, 0)
+
+        policy.ssrc_value = 12345
+        self.assertEqual(policy.ssrc_value, 12345)
+
 
 class SessionTest(TestCase):
-    def test_rtp(self):
+    def test_rtp_any_ssrc(self):
         # protect RTP
         tx_session = Session(policy=Policy(
             key=KEY,
@@ -47,6 +54,24 @@ class SessionTest(TestCase):
         rx_session = Session(policy=Policy(
             key=KEY,
             ssrc_type=Policy.SSRC_ANY_INBOUND))
+        unprotected = rx_session.unprotect(protected)
+        self.assertEqual(len(unprotected), 172)
+        self.assertEqual(unprotected, RTP)
+
+    def test_rtp_specific_ssrc(self):
+        # protect RTP
+        tx_session = Session(policy=Policy(
+            key=KEY,
+            ssrc_type=Policy.SSRC_SPECIFIC,
+            ssrc_value=12345))
+        protected = tx_session.protect(RTP)
+        self.assertEqual(len(protected), 182)
+
+        # unprotect RTP
+        rx_session = Session(policy=Policy(
+            key=KEY,
+            ssrc_type=Policy.SSRC_SPECIFIC,
+            ssrc_value=12345))
         unprotected = rx_session.unprotect(protected)
         self.assertEqual(len(unprotected), 172)
         self.assertEqual(unprotected, RTP)
