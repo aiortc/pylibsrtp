@@ -1,7 +1,7 @@
 pylibsrtp
 =========
 
-A Python wrapper around libsrtp.
+A Python wrapper around libsrtp >= 2.0.
 
 Example:
 
