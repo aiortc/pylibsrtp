@@ -45,22 +45,20 @@ def _srtp_assert(rc):
 
 
 class Policy:
-    def __init__(self, inbound, key=None):
+    SSRC_UNDEFINED = _lib.ssrc_undefined
+    SSRC_SPECIFIC = _lib.ssrc_specific
+    SSRC_ANY_INBOUND = _lib.ssrc_any_inbound
+    SSRC_ANY_OUTBOUND = _lib.ssrc_any_outbound
+
+    def __init__(self, key=None, ssrc_type=SSRC_UNDEFINED):
         self._policy = ffi.new('srtp_policy_t *')
         _lib.srtp_crypto_policy_set_rtp_default(
             ffi.addressof(self._policy.rtp))
         _lib.srtp_crypto_policy_set_rtcp_default(
             ffi.addressof(self._policy.rtcp))
 
-        if key is not None:
-            self.key = key
-        else:
-            self.__cdata = None
-
-        if inbound:
-            self._policy.ssrc.type = _lib.ssrc_any_inbound
-        else:
-            self._policy.ssrc.type = _lib.ssrc_any_outbound
+        self.key = key
+        self.ssrc_type = ssrc_type
 
     @property
     def key(self):
@@ -70,11 +68,24 @@ class Policy:
 
     @key.setter
     def key(self, key):
+        if key is None:
+            self.__cdata = None
+            self._policy.key = ffi.NULL
+            return
+
         if not isinstance(key, bytes):
             raise TypeError('key must be bytes')
         self.__cdata = ffi.new('char[]', len(key))
         self.__cdata[0:len(key)] = key
         self._policy.key = self.__cdata
+
+    @property
+    def ssrc_type(self):
+        return self._policy.ssrc.type
+
+    @ssrc_type.setter
+    def ssrc_type(self, ssrc_type):
+        self._policy.ssrc.type = ssrc_type
 
 
 class Session:

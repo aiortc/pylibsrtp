@@ -20,22 +20,33 @@ KEY = (
 
 class PolicyTest(TestCase):
     def test_key(self):
-        policy = Policy(inbound=True)
+        policy = Policy()
         self.assertEqual(policy.key, b'')
 
         policy.key = KEY
         self.assertEqual(policy.key, KEY)
 
+    def test_ssrc_type(self):
+        policy = Policy()
+        self.assertEqual(policy.ssrc_type, Policy.SSRC_UNDEFINED)
+
+        policy.ssrc_type = Policy.SSRC_ANY_INBOUND
+        self.assertEqual(policy.ssrc_type, Policy.SSRC_ANY_INBOUND)
+
 
 class SessionTest(TestCase):
     def test_rtp(self):
         # protect RTP
-        tx_session = Session(policy=Policy(inbound=False, key=KEY))
+        tx_session = Session(policy=Policy(
+            key=KEY,
+            ssrc_type=Policy.SSRC_ANY_OUTBOUND))
         protected = tx_session.protect(RTP)
         self.assertEqual(len(protected), 182)
 
         # unprotect RTP
-        rx_session = Session(policy=Policy(inbound=True, key=KEY))
+        rx_session = Session(policy=Policy(
+            key=KEY,
+            ssrc_type=Policy.SSRC_ANY_INBOUND))
         unprotected = rx_session.unprotect(protected)
         self.assertEqual(len(unprotected), 172)
         self.assertEqual(unprotected, RTP)
