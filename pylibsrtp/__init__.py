@@ -36,6 +36,9 @@ SRTP_MAX_TRAILER_LEN = 16 + 128
 
 
 class Error(Exception):
+    """
+    Error that occurred making an `libsrtp` API call.
+    """
     pass
 
 
@@ -45,6 +48,10 @@ def _srtp_assert(rc):
 
 
 class Policy:
+    """
+    Policy for an SRTP session.
+    """
+
     SSRC_UNDEFINED = _lib.ssrc_undefined
     SSRC_SPECIFIC = _lib.ssrc_specific
     SSRC_ANY_INBOUND = _lib.ssrc_any_inbound
@@ -98,6 +105,9 @@ class Policy:
 
 
 class Session:
+    """
+    An SRTP session.
+    """
     def __init__(self, policy):
         srtp = ffi.new('srtp_t *')
         _srtp_assert(_lib.srtp_create(srtp, policy._policy))
@@ -106,23 +116,47 @@ class Session:
         self._buffer = ffi.buffer(self._cdata)
         self._srtp = ffi.gc(srtp, lambda x: _lib.srtp_dealloc(x[0]))
 
-    def protect(self, data):
-        return self.__process(data, _lib.srtp_protect, SRTP_MAX_TRAILER_LEN)
+    def protect(self, packet):
+        """
+        Apply SRTP protection to the RTP `packet`.
 
-    def protect_rtcp(self, data):
-        return self.__process(data, _lib.srtp_protect_rtcp, SRTP_MAX_TRAILER_LEN)
+        :param packet: :class:`bytes`
+        :rtype: :class:`bytes`
+        """
+        return self.__process(packet, _lib.srtp_protect, SRTP_MAX_TRAILER_LEN)
 
-    def unprotect(self, data):
-        return self.__process(data, _lib.srtp_unprotect)
+    def protect_rtcp(self, packet):
+        """
+        Apply SRTCP protection to the RTCP `packet`.
 
-    def unprotect_rtcp(self, data):
-        return self.__process(data, _lib.srtp_unprotect_rtcp)
+        :param packet: :class:`bytes`
+        :rtype: :class:`bytes`
+        """
+        return self.__process(packet, _lib.srtp_protect_rtcp, SRTP_MAX_TRAILER_LEN)
+
+    def unprotect(self, packet):
+        """
+        Verify SRTP protection of the SRTP packet.
+
+        :param packet: :class:`bytes`
+        :rtype: :class:`bytes`
+        """
+        return self.__process(packet, _lib.srtp_unprotect)
+
+    def unprotect_rtcp(self, packet):
+        """
+        Verify SRTCP protection of the SRTCP packet.
+
+        :param packet: :class:`bytes`
+        :rtype: :class:`bytes`
+        """
+        return self.__process(packet, _lib.srtp_unprotect_rtcp)
 
     def __process(self, data, func, trailer=0):
         if not isinstance(data, bytes):
-            raise TypeError('data must be bytes')
+            raise TypeError('packet must be bytes')
         if len(data) > len(self._cdata) - trailer:
-            raise ValueError('data is too long')
+            raise ValueError('packet is too long')
 
         len_p = ffi.new('int *')
         len_p[0] = len(data)
