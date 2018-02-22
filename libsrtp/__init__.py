@@ -51,17 +51,26 @@ class Policy:
             ffi.addressof(self._policy.rtp))
         _lib.srtp_crypto_policy_set_rtcp_default(
             ffi.addressof(self._policy.rtcp))
+
+        self.__cdata = None
         if inbound:
             self._policy.ssrc.type = _lib.ssrc_any_inbound
         else:
             self._policy.ssrc.type = _lib.ssrc_any_outbound
 
-    def set_key(self, key):
+    @property
+    def key(self):
+        if self.__cdata:
+            return ffi.buffer(self.__cdata)
+        return b''
+
+    @key.setter
+    def key(self, key):
         if not isinstance(key, bytes):
             raise TypeError('key must be bytes')
-        self._cdata = ffi.new('char[]', len(key))
-        self._cdata[0:len(key)] = key
-        self._policy.key = self._cdata
+        self.__cdata = ffi.new('char[]', len(key))
+        self.__cdata[0:len(key)] = key
+        self._policy.key = self.__cdata
 
 
 class Session:

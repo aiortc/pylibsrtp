@@ -18,16 +18,25 @@ KEY = (
 )
 
 
+class PolicyTest(TestCase):
+    def test_key(self):
+        policy = Policy(inbound=True)
+        self.assertEqual(policy.key, b'')
+
+        policy.key = KEY
+        self.assertEqual(policy.key, KEY)
+
+
 class SessionTest(TestCase):
     def test_rtp(self):
         # sender
         rx_policy = Policy(inbound=True)
-        rx_policy.set_key(KEY)
+        rx_policy.key = KEY
         rx_session = Session(policy=rx_policy)
 
         # receiver
         tx_policy = Policy(inbound=False)
-        tx_policy.set_key(KEY)
+        tx_policy.key = KEY
         tx_session = Session(policy=tx_policy)
 
         # protect RTP
