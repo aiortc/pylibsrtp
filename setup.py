@@ -9,7 +9,7 @@ with open(readme_file, encoding='utf-8') as f:
     long_description = f.read()
 
 setuptools.setup(
-    name='libsrtp',
+    name='pylibsrtp',
     version='0.1.0',
     description='Python wrapper around the libsrtp library',
     long_description=long_description,
@@ -28,6 +28,6 @@ setuptools.setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
-    packages=['libsrtp'],
+    packages=['pylibsrtp'],
     setup_require=['cffi'],
 )

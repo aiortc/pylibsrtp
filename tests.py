@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from libsrtp import Policy, Session
+from pylibsrtp import Policy, Session
 
 RTP = (
     b'\x80\x08\x00\x00'  # version, packet type, sequence number

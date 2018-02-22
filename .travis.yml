@@ -10,5 +10,5 @@ python:
   - 3.5
   - 3.6
 script:
-  - flake8 libsrtp tests.py
+  - flake8 pylibsrtp tests.py
   - coverage run setup.py test
