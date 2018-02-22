@@ -56,8 +56,12 @@ class Policy:
         else:
             self._policy.ssrc.type = _lib.ssrc_any_outbound
 
-    def set_key(self, data):
-        self._policy.key = data
+    def set_key(self, key):
+        if not isinstance(key, bytes):
+            raise TypeError('key must be bytes')
+        self._cdata = ffi.new('char[]', len(key))
+        self._cdata[0:len(key)] = key
+        self._policy.key = self._cdata
 
 
 class Session:
