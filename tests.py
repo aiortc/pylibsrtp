@@ -29,21 +29,13 @@ class PolicyTest(TestCase):
 
 class SessionTest(TestCase):
     def test_rtp(self):
-        # sender
-        rx_policy = Policy(inbound=True)
-        rx_policy.key = KEY
-        rx_session = Session(policy=rx_policy)
-
-        # receiver
-        tx_policy = Policy(inbound=False)
-        tx_policy.key = KEY
-        tx_session = Session(policy=tx_policy)
-
         # protect RTP
+        tx_session = Session(policy=Policy(inbound=False, key=KEY))
         protected = tx_session.protect(RTP)
         self.assertEqual(len(protected), 182)
 
         # unprotect RTP
+        rx_session = Session(policy=Policy(inbound=True, key=KEY))
         unprotected = rx_session.unprotect(protected)
         self.assertEqual(len(unprotected), 172)
         self.assertEqual(unprotected, RTP)

@@ -45,14 +45,18 @@ def _srtp_assert(rc):
 
 
 class Policy:
-    def __init__(self, inbound):
+    def __init__(self, inbound, key=None):
         self._policy = ffi.new('srtp_policy_t *')
         _lib.srtp_crypto_policy_set_rtp_default(
             ffi.addressof(self._policy.rtp))
         _lib.srtp_crypto_policy_set_rtcp_default(
             ffi.addressof(self._policy.rtcp))
 
-        self.__cdata = None
+        if key is not None:
+            self.key = key
+        else:
+            self.__cdata = None
+
         if inbound:
             self._policy.ssrc.type = _lib.ssrc_any_inbound
         else:
