@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from pylibsrtp import Policy, Session
+from pylibsrtp import Error, Policy, Session
 
 RTP = (
     b'\x80\x08\x00\x00'  # version, packet type, sequence number
@@ -29,8 +29,10 @@ class PolicyTest(TestCase):
         policy.key = None
         self.assertEqual(policy.key, None)
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(TypeError) as cm:
             policy.key = 1234
+        self.assertEqual(policy.key, None)
+        self.assertEqual(str(cm.exception), 'key must be bytes')
 
     def test_ssrc_type(self):
         policy = Policy()
@@ -48,6 +50,13 @@ class PolicyTest(TestCase):
 
 
 class SessionTest(TestCase):
+    def test_no_key(self):
+        policy = Policy(ssrc_type=Policy.SSRC_ANY_OUTBOUND)
+
+        with self.assertRaises(Error) as cm:
+            Session(policy=policy)
+        self.assertEqual(str(cm.exception), 'unsupported parameter')
+
     def test_rtp_any_ssrc(self):
         # protect RTP
         tx_session = Session(policy=Policy(
@@ -55,6 +64,16 @@ class SessionTest(TestCase):
             ssrc_type=Policy.SSRC_ANY_OUTBOUND))
         protected = tx_session.protect(RTP)
         self.assertEqual(len(protected), 182)
+
+        # bad type
+        with self.assertRaises(TypeError) as cm:
+            tx_session.protect(4567)
+        self.assertEqual(str(cm.exception), 'data must be bytes')
+
+        # bad length
+        with self.assertRaises(ValueError) as cm:
+            tx_session.protect(b'0' * 1500)
+        self.assertEqual(str(cm.exception), 'data is too long')
 
         # unprotect RTP
         rx_session = Session(policy=Policy(

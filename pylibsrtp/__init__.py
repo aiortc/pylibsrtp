@@ -107,24 +107,22 @@ class Session:
         self._srtp = ffi.gc(srtp, lambda x: _lib.srtp_dealloc(x[0]))
 
     def protect(self, data):
-        assert len(data) <= len(self._cdata) - SRTP_MAX_TRAILER_LEN
-        return self.__process(data, _lib.srtp_protect)
+        return self.__process(data, _lib.srtp_protect, SRTP_MAX_TRAILER_LEN)
 
     def protect_rtcp(self, data):
-        assert len(data) <= len(self._cdata) - SRTP_MAX_TRAILER_LEN
-        return self.__process(data, _lib.srtp_protect_rtcp)
+        return self.__process(data, _lib.srtp_protect_rtcp, SRTP_MAX_TRAILER_LEN)
 
     def unprotect(self, data):
-        assert len(data) <= len(self._cdata)
         return self.__process(data, _lib.srtp_unprotect)
 
     def unprotect_rtcp(self, data):
-        assert len(data) <= len(self._cdata)
         return self.__process(data, _lib.srtp_unprotect_rtcp)
 
-    def __process(self, data, func):
+    def __process(self, data, func, trailer=0):
         if not isinstance(data, bytes):
             raise TypeError('data must be bytes')
+        if len(data) > len(self._cdata) - trailer:
+            raise ValueError('data is too long')
 
         len_p = ffi.new('int *')
         len_p[0] = len(data)
