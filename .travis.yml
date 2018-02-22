@@ -1,7 +1,3 @@
-addons:
-  apt:
-    packages:
-    - libsrtp2
 after_success: coveralls
 dist: trusty
 install: pip install cffi coveralls flake8
