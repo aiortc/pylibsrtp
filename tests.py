@@ -71,12 +71,12 @@ class SessionTest(TestCase):
         # bad type
         with self.assertRaises(TypeError) as cm:
             tx_session.protect(4567)
-        self.assertEqual(str(cm.exception), 'data must be bytes')
+        self.assertEqual(str(cm.exception), 'packet must be bytes')
 
         # bad length
         with self.assertRaises(ValueError) as cm:
             tx_session.protect(b'0' * 1500)
-        self.assertEqual(str(cm.exception), 'data is too long')
+        self.assertEqual(str(cm.exception), 'packet is too long')
 
         # unprotect RTP
         rx_session = Session(policy=Policy(
@@ -97,12 +97,12 @@ class SessionTest(TestCase):
         # bad type
         with self.assertRaises(TypeError) as cm:
             tx_session.protect_rtcp(4567)
-        self.assertEqual(str(cm.exception), 'data must be bytes')
+        self.assertEqual(str(cm.exception), 'packet must be bytes')
 
         # bad length
         with self.assertRaises(ValueError) as cm:
             tx_session.protect_rtcp(b'0' * 1500)
-        self.assertEqual(str(cm.exception), 'data is too long')
+        self.assertEqual(str(cm.exception), 'packet is too long')
 
         # unprotect RTCP
         rx_session = Session(policy=Policy(
