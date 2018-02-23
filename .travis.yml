@@ -6,4 +6,5 @@ python:
   - 3.5
   - 3.6
 script:
+  - .travis/build-libsrtp
   - flake8 pylibsrtp tests.py
