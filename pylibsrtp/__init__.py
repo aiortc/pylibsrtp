@@ -52,9 +52,13 @@ class Policy:
     Policy for an SRTP session.
     """
 
+    #: Indicates an undefined SSRC type
     SSRC_UNDEFINED = _lib.ssrc_undefined
+    #: Indicates a specific SSRC value
     SSRC_SPECIFIC = _lib.ssrc_specific
+    #: Indicates any inbound SSRC value
     SSRC_ANY_INBOUND = _lib.ssrc_any_inbound
+    #: Indicates any inbound SSRC value
     SSRC_ANY_OUTBOUND = _lib.ssrc_any_outbound
 
     def __init__(self, key=None, ssrc_type=SSRC_UNDEFINED, ssrc_value=0):
