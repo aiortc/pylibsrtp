@@ -15,7 +15,19 @@ pylibsrtp
 .. |pypi-wheel| image:: https://img.shields.io/pypi/wheel/pylibsrtp.svg
     :target: https://pypi.python.org/pypi/pylibsrtp
 
-`pylibsrtp` is a Python wrapper around the libsrtp library.
+``pylibsrtp`` is a Python wrapper around `libsrtp`_, making it possible to
+encrypt and decrypt Secure Real-time Transport Protocol (SRTP) packets from
+Python code.
+
+SRTP is a profile of the Real-time Transport Protocol (RTP) which provides
+confidentiality, message authentication, and replay protection. It is defined
+by `RFC 3711`_.
+
+``pylibsrtp`` requires libsrtp version 2.0 or better.
+
+.. _libsrtp: https://github.com/cisco/libsrtp
+
+.. _RFC 3711: https://tools.ietf.org/html/rfc3711
 
 .. toctree::
    :maxdepth: 2
