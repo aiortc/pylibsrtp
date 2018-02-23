@@ -10,7 +10,7 @@ with open(readme_file, encoding='utf-8') as f:
 
 setuptools.setup(
     name='pylibsrtp',
-    version='0.3.0',
+    version='0.4.0',
     description='Python wrapper around the libsrtp library',
     long_description=long_description,
     url='https://github.com/jlaine/pylibsrtp',
