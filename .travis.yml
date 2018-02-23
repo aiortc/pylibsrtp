@@ -7,4 +7,6 @@ python:
   - 3.6
 script:
   - .travis/build-libsrtp
+  - export LD_LIBRARY_PATH=$PWD/libsrtp:$LD_LIBRARY_PATH
   - flake8 pylibsrtp tests.py
+  - coverage run setup.py test
