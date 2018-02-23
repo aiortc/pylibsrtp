@@ -1,3 +1,6 @@
+import ctypes.util
+import platform
+
 import cffi
 
 ffi = cffi.FFI()
@@ -118,4 +121,8 @@ srtp_err_status_t srtp_protect_rtcp(srtp_t ctx, void *rtcp_hdr, int *pkt_octet_l
 srtp_err_status_t srtp_unprotect(srtp_t ctx, void *srtp_hdr, int *len_ptr);
 srtp_err_status_t srtp_unprotect_rtcp(srtp_t ctx, void *srtcp_hdr, int *pkt_octet_len);
 """)
-_lib = ffi.dlopen('libsrtp2.so.1')
+_libname = ctypes.util.find_library('srtp2')
+# find_library does not respect LD_LIBRARY_PATH on python < 3.6
+if _libname is None and platform.python_version_tuple() < ('3', '6', '0'):
+    _libname = 'libsrtp2.so.1'
+_lib = ffi.dlopen(_libname)
