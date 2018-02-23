@@ -109,6 +109,9 @@ srtp_err_status_t srtp_dealloc(srtp_t s);
 void srtp_crypto_policy_set_rtp_default(srtp_crypto_policy_t *p);
 void srtp_crypto_policy_set_rtcp_default(srtp_crypto_policy_t *p);
 
+srtp_err_status_t srtp_add_stream(srtp_t session, const srtp_policy_t *policy);
+srtp_err_status_t srtp_remove_stream(srtp_t session, unsigned int ssrc);
+
 srtp_err_status_t srtp_protect(srtp_t ctx, void *rtp_hdr, int *len_ptr);
 srtp_err_status_t srtp_protect_rtcp(srtp_t ctx, void *rtcp_hdr, int *pkt_octet_len);
 

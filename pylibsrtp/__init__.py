@@ -1,4 +1,9 @@
+from socket import htonl
+
 from ._binding import ffi, _lib
+
+__all__ = ['Error', 'Policy', 'Session']
+
 
 ERRORS = [
     "nothing to report",
@@ -37,7 +42,7 @@ SRTP_MAX_TRAILER_LEN = 16 + 128
 
 class Error(Exception):
     """
-    Error that occurred making an `libsrtp` API call.
+    Error that occurred making a `libsrtp` API call.
     """
     pass
 
@@ -49,7 +54,7 @@ def _srtp_assert(rc):
 
 class Policy:
     """
-    Policy for an SRTP session.
+    Policy for single SRTP stream.
     """
 
     #: Indicates an undefined SSRC type
@@ -110,15 +115,40 @@ class Policy:
 
 class Session:
     """
-    An SRTP session.
+    SRTP session, which may comprise several streams.
+
+    If `policy` is not specified, streams should be added later using the
+    :func:`add_stream` method.
     """
-    def __init__(self, policy):
+    def __init__(self, policy=None):
         srtp = ffi.new('srtp_t *')
-        _srtp_assert(_lib.srtp_create(srtp, policy._policy))
+
+        if policy is None:
+            _policy = ffi.NULL
+        else:
+            _policy = policy._policy
+        _srtp_assert(_lib.srtp_create(srtp, _policy))
 
         self._cdata = ffi.new('char[]', 1500)
         self._buffer = ffi.buffer(self._cdata)
         self._srtp = ffi.gc(srtp, lambda x: _lib.srtp_dealloc(x[0]))
+
+    def add_stream(self, policy):
+        """
+        Add a stream to the SRTP session, applying the given `policy`
+        to the stream.
+
+        :param policy: :class:`Policy`
+        """
+        _srtp_assert(_lib.srtp_add_stream(self._srtp[0], policy._policy))
+
+    def remove_stream(self, ssrc):
+        """
+        Remove the stream with the given `ssrc` from the SRTP session.
+
+        :param ssrc: :class:`int`
+        """
+        _srtp_assert(_lib.srtp_remove_stream(self._srtp[0], htonl(ssrc)))
 
     def protect(self, packet):
         """

@@ -60,6 +60,33 @@ class SessionTest(TestCase):
             Session(policy=policy)
         self.assertEqual(str(cm.exception), 'unsupported parameter')
 
+    def test_add_remove_stream(self):
+        # protect RTP
+        tx_session = Session(policy=Policy(
+            key=KEY,
+            ssrc_type=Policy.SSRC_SPECIFIC,
+            ssrc_value=12345))
+        protected = tx_session.protect(RTP)
+        self.assertEqual(len(protected), 182)
+
+        # add stream and unprotect RTP
+        rx_session = Session()
+        rx_session.add_stream(Policy(
+            key=KEY,
+            ssrc_type=Policy.SSRC_SPECIFIC,
+            ssrc_value=12345))
+        unprotected = rx_session.unprotect(protected)
+        self.assertEqual(len(unprotected), 172)
+        self.assertEqual(unprotected, RTP)
+
+        # remove stream
+        rx_session.remove_stream(12345)
+
+        # try removing stream again
+        with self.assertRaises(Error) as cm:
+            rx_session.remove_stream(12345)
+        self.assertEqual(str(cm.exception), 'no appropriate context found')
+
     def test_rtp_any_ssrc(self):
         # protect RTP
         tx_session = Session(policy=Policy(
