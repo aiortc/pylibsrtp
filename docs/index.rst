@@ -1,7 +1,7 @@
 pylibsrtp
 =========
 
-|pypi-v| |pypi-pyversions| |pypi-l| |pypi-wheel|
+|pypi-v| |pypi-pyversions| |pypi-l| |pypi-wheel| |travis| |coveralls|
 
 .. |pypi-v| image:: https://img.shields.io/pypi/v/pylibsrtp.svg
     :target: https://pypi.python.org/pypi/pylibsrtp
@@ -14,6 +14,12 @@ pylibsrtp
 
 .. |pypi-wheel| image:: https://img.shields.io/pypi/wheel/pylibsrtp.svg
     :target: https://pypi.python.org/pypi/pylibsrtp
+
+.. |travis| image:: https://img.shields.io/travis/jlaine/pylibsrtp.svg
+    :target: https://travis-ci.org/jlaine/pylibsrtp
+
+.. |coveralls| image:: https://img.shields.io/coveralls/jlaine/pylibsrtp.svg
+    :target: https://coveralls.io/github/jlaine/pylibsrtp
 
 ``pylibsrtp`` is a Python wrapper around `libsrtp`_, making it possible to
 encrypt and decrypt Secure Real-time Transport Protocol (SRTP) packets from
