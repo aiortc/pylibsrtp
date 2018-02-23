@@ -29,5 +29,5 @@ setuptools.setup(
         'Programming Language :: Python :: 3.6',
     ],
     packages=['pylibsrtp'],
-    setup_requires=['cffi'],
+    install_requires=['cffi'],
 )
