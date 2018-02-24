@@ -1,6 +1,13 @@
 after_success: coveralls
 dist: trusty
 install:
+  - .travis/build-libsrtp
+  - |
+    if [[ "$(uname -s)" == 'Darwin' ]]; then
+      export DYLD_LIBRARY_PATH=$PWD/libsrtp:$DYLD_LIBRARY_PATH
+    else
+      export LD_LIBRARY_PATH=$PWD/libsrtp:$LD_LIBRARY_PATH
+    fi
   - |
     if [[ "$(uname -s)" == 'Darwin' ]]; then
       brew update
@@ -8,7 +15,7 @@ install:
       python3 -m venv env
       source env/bin/activate
     fi
-  - pip install cffi coveralls flake8
+  - pip install coveralls flake8
 language: python
 matrix:
   include:
@@ -17,12 +24,5 @@ matrix:
   - python: "3.5"
   - python: "3.6"
 script:
-  - .travis/build-libsrtp
-  - |
-    if [[ "$(uname -s)" == 'Darwin' ]]; then
-      export DYLD_LIBRARY_PATH=$PWD/libsrtp:$DYLD_LIBRARY_PATH
-    else
-      export LD_LIBRARY_PATH=$PWD/libsrtp:$LD_LIBRARY_PATH
-    fi
   - flake8 pylibsrtp tests.py
   - coverage run setup.py test
