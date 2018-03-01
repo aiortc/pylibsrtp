@@ -19,6 +19,7 @@ matrix:
     os: osx
   - python: "3.5"
   - python: "3.6"
+  - python: "pypy3"
 script:
   - flake8 pylibsrtp tests.py
   - coverage run setup.py test
