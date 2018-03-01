@@ -92,7 +92,7 @@ class Policy:
 
         if not isinstance(key, bytes):
             raise TypeError('key must be bytes')
-        self.__cdata = ffi.new('char[]', len(key))
+        self.__cdata = ffi.new('unsigned char[]', len(key))
         self.__cdata[0:len(key)] = key
         self._policy.key = self.__cdata
 
