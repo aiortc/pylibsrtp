@@ -37,7 +37,7 @@ by `RFC 3711`_.
 
 ``pylibsrtp`` requires libsrtp version 2.0 or better.
 
-On Debian/Ubuntu:
+On Debian/Ubuntu run:
 
     apt install libsrtp2-1
 
