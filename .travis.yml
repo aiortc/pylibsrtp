@@ -1,19 +1,15 @@
 after_success: coveralls
 dist: trusty
 install:
-  - .travis/build-libsrtp
-  - |
-    if [[ "$(uname -s)" == 'Darwin' ]]; then
-      export DYLD_LIBRARY_PATH=$PWD/libsrtp:$DYLD_LIBRARY_PATH
-    else
-      export LD_LIBRARY_PATH=$PWD/libsrtp:$LD_LIBRARY_PATH
-    fi
   - |
     if [[ "$(uname -s)" == 'Darwin' ]]; then
       brew update
-      brew install python3
+      brew install python3 srtp
       python3 -m venv env
       source env/bin/activate
+    else
+      .travis/build-libsrtp
+      export LD_LIBRARY_PATH=$PWD/libsrtp:$LD_LIBRARY_PATH
     fi
   - pip install coveralls flake8
 language: python
