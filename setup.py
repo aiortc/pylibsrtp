@@ -8,6 +8,11 @@ readme_file = os.path.join(root_dir, 'README.rst')
 with open(readme_file, encoding='utf-8') as f:
     long_description = f.read()
 
+if os.environ.get('READTHEDOCS') == 'True':
+    cffi_modules=[]
+else:
+    cffi_modules=['src/build_srtp.py:ffibuilder']
+
 setuptools.setup(
     name='pylibsrtp',
     version='0.4.2',
@@ -28,6 +33,7 @@ setuptools.setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
+    cffi_modules=cffi_modules,
     packages=['pylibsrtp'],
-    install_requires=['cffi'],
+    setup_requires=['cffi'],
 )

@@ -1,10 +1,9 @@
-import ctypes.util
-import platform
+from cffi import FFI
+ffibuilder = FFI()
 
-import cffi
+ffibuilder.set_source('pylibsrtp._binding', '#include <srtp2/srtp.h>', libraries=['srtp2'])
 
-ffi = cffi.FFI()
-ffi.cdef("""
+ffibuilder.cdef("""
 typedef uint32_t srtp_auth_type_id_t;
 typedef uint32_t srtp_cipher_type_id_t;
 
@@ -121,8 +120,6 @@ srtp_err_status_t srtp_protect_rtcp(srtp_t ctx, void *rtcp_hdr, int *pkt_octet_l
 srtp_err_status_t srtp_unprotect(srtp_t ctx, void *srtp_hdr, int *len_ptr);
 srtp_err_status_t srtp_unprotect_rtcp(srtp_t ctx, void *srtcp_hdr, int *pkt_octet_len);
 """)
-_libname = ctypes.util.find_library('srtp2')
-# find_library does not respect LD_LIBRARY_PATH on python < 3.6
-if _libname is None and platform.python_version_tuple() < ('3', '6', '0'):
-    _libname = 'libsrtp2.so.1'
-_lib = ffi.dlopen(_libname)
+
+if __name__ == "__main__":
+    ffibuilder.compile(verbose=True)

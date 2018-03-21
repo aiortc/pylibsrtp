@@ -1,6 +1,6 @@
 from socket import htonl
 
-from ._binding import ffi, _lib
+from ._binding import ffi, lib
 
 __all__ = ['Error', 'Policy', 'Session']
 
@@ -48,7 +48,7 @@ class Error(Exception):
 
 
 def _srtp_assert(rc):
-    if rc != _lib.srtp_err_status_ok:
+    if rc != lib.srtp_err_status_ok:
         raise Error(ERRORS[rc])
 
 
@@ -58,19 +58,19 @@ class Policy:
     """
 
     #: Indicates an undefined SSRC type
-    SSRC_UNDEFINED = _lib.ssrc_undefined
+    SSRC_UNDEFINED = lib.ssrc_undefined
     #: Indicates a specific SSRC value
-    SSRC_SPECIFIC = _lib.ssrc_specific
+    SSRC_SPECIFIC = lib.ssrc_specific
     #: Indicates any inbound SSRC value
-    SSRC_ANY_INBOUND = _lib.ssrc_any_inbound
+    SSRC_ANY_INBOUND = lib.ssrc_any_inbound
     #: Indicates any inbound SSRC value
-    SSRC_ANY_OUTBOUND = _lib.ssrc_any_outbound
+    SSRC_ANY_OUTBOUND = lib.ssrc_any_outbound
 
     def __init__(self, key=None, ssrc_type=SSRC_UNDEFINED, ssrc_value=0):
         self._policy = ffi.new('srtp_policy_t *')
-        _lib.srtp_crypto_policy_set_rtp_default(
+        lib.srtp_crypto_policy_set_rtp_default(
             ffi.addressof(self._policy.rtp))
-        _lib.srtp_crypto_policy_set_rtcp_default(
+        lib.srtp_crypto_policy_set_rtcp_default(
             ffi.addressof(self._policy.rtcp))
 
         self.key = key
@@ -127,11 +127,11 @@ class Session:
             _policy = ffi.NULL
         else:
             _policy = policy._policy
-        _srtp_assert(_lib.srtp_create(srtp, _policy))
+        _srtp_assert(lib.srtp_create(srtp, _policy))
 
         self._cdata = ffi.new('char[]', 1500)
         self._buffer = ffi.buffer(self._cdata)
-        self._srtp = ffi.gc(srtp, lambda x: _lib.srtp_dealloc(x[0]))
+        self._srtp = ffi.gc(srtp, lambda x: lib.srtp_dealloc(x[0]))
 
     def add_stream(self, policy):
         """
@@ -140,7 +140,7 @@ class Session:
 
         :param policy: :class:`Policy`
         """
-        _srtp_assert(_lib.srtp_add_stream(self._srtp[0], policy._policy))
+        _srtp_assert(lib.srtp_add_stream(self._srtp[0], policy._policy))
 
     def remove_stream(self, ssrc):
         """
@@ -148,7 +148,7 @@ class Session:
 
         :param ssrc: :class:`int`
         """
-        _srtp_assert(_lib.srtp_remove_stream(self._srtp[0], htonl(ssrc)))
+        _srtp_assert(lib.srtp_remove_stream(self._srtp[0], htonl(ssrc)))
 
     def protect(self, packet):
         """
@@ -157,7 +157,7 @@ class Session:
         :param packet: :class:`bytes`
         :rtype: :class:`bytes`
         """
-        return self.__process(packet, _lib.srtp_protect, SRTP_MAX_TRAILER_LEN)
+        return self.__process(packet, lib.srtp_protect, SRTP_MAX_TRAILER_LEN)
 
     def protect_rtcp(self, packet):
         """
@@ -166,7 +166,7 @@ class Session:
         :param packet: :class:`bytes`
         :rtype: :class:`bytes`
         """
-        return self.__process(packet, _lib.srtp_protect_rtcp, SRTP_MAX_TRAILER_LEN)
+        return self.__process(packet, lib.srtp_protect_rtcp, SRTP_MAX_TRAILER_LEN)
 
     def unprotect(self, packet):
         """
@@ -175,7 +175,7 @@ class Session:
         :param packet: :class:`bytes`
         :rtype: :class:`bytes`
         """
-        return self.__process(packet, _lib.srtp_unprotect)
+        return self.__process(packet, lib.srtp_unprotect)
 
     def unprotect_rtcp(self, packet):
         """
@@ -184,7 +184,7 @@ class Session:
         :param packet: :class:`bytes`
         :rtype: :class:`bytes`
         """
-        return self.__process(packet, _lib.srtp_unprotect_rtcp)
+        return self.__process(packet, lib.srtp_unprotect_rtcp)
 
     def __process(self, data, func, trailer=0):
         if not isinstance(data, bytes):
@@ -199,4 +199,4 @@ class Session:
         return self._buffer[0:len_p[0]]
 
 
-_lib.srtp_init()
+lib.srtp_init()
