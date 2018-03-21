@@ -4,7 +4,8 @@ install:
   - |
     if [[ "$(uname -s)" == 'Darwin' ]]; then
       brew update
-      brew install python3 srtp
+      brew upgrade python3
+      brew install srtp
       python3 -m venv env
       source env/bin/activate
     else
