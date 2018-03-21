@@ -12,8 +12,10 @@ install:
       brew update
       brew upgrade python3
     fi
-    if [ "$BUILD" = "wheel" ]; then
-      pip3 install cibuildwheel
+    if [ "$BUILD" = "sdist" ]; then
+      pip3 install twine
+    elif [ "$BUILD" = "wheel" ]; then
+      pip3 install cibuildwheel twine
     else
       .travis/build-libsrtp
       export CFLAGS=-I/tmp/libsrtp/include
@@ -28,6 +30,8 @@ matrix:
   - python: "3.5"
   - python: "3.6"
   - python: "pypy3"
+  - env: BUILD=sdist
+    python: "3.6"
   - env: BUILD=wheel
     python: "3.6"
     services: docker
@@ -36,11 +40,15 @@ matrix:
     language: generic
 script:
   - |
-    if [ "$BUILD" = "wheel" ]; then
+    if [ "$BUILD" = "sdist" ]; then
+      python3 setup.py sdist
+      if [ -n "$TRAVIS_TAG" ]; then
+        twine upload --skip-existing dist/*
+      fi
+    elif [ "$BUILD" = "wheel" ]; then
       cibuildwheel --output-dir wheelhouse
       if [ -n "$TRAVIS_TAG" ]; then
-        pip3 install twine
-        python3 -m twine upload --skip-existing wheelhouse/*
+        twine upload --skip-existing wheelhouse/*
       fi
     else
       flake8 pylibsrtp
