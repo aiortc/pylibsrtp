@@ -1,19 +1,25 @@
 after_success: coveralls
 dist: trusty
+env:
+  global:
+    - CIBW_BEFORE_BUILD=.travis/build-libsrtp
+    - CIBW_ENVIRONMENT="CFLAGS=-I/tmp/libsrtp/include LDFLAGS=-L/tmp/libsrtp/lib"
+    - CIBW_SKIP="cp27-* cp33-* cp34-*"
+    - CIBW_TEST_COMMAND="python3 -m unittest pylibsrtp.tests"
 install:
   - |
-    if [[ "$(uname -s)" == 'Darwin' ]]; then
+    if [ "$TRAVIS_OS_NAME" = "osx" ]; then
       brew update
       brew upgrade python3
-      brew install srtp
-      python3 -m venv env
-      source env/bin/activate
+    fi
+    if [ "$BUILD" = "wheel" ]; then
+      pip3 install cibuildwheel
     else
       .travis/build-libsrtp
-      export CFLAGS=-I$PWD/libsrtp/local/include
-      export LDFLAGS=-L$PWD/libsrtp/local/lib
+      export CFLAGS=-I/tmp/libsrtp/include
+      export LDFLAGS=-L/tmp/libsrtp/lib
+      pip3 install coveralls flake8
     fi
-  - pip install coveralls flake8
 language: python
 matrix:
   include:
@@ -22,6 +28,21 @@ matrix:
   - python: "3.5"
   - python: "3.6"
   - python: "pypy3"
+  - env: BUILD=wheel
+    python: "3.6"
+    services: docker
+  - env: BUILD=wheel
+    os: osx
+    language: generic
 script:
-  - flake8 pylibsrtp
-  - coverage run setup.py test
+  - |
+    if [ "$BUILD" = "wheel" ]; then
+      cibuildwheel --output-dir wheelhouse
+      if [ -n "$TRAVIS_TAG" ]; then
+        pip3 install twine
+        python3 -m twine upload --skip-existing wheelhouse/*
+      fi
+    else
+      flake8 pylibsrtp
+      coverage run setup.py test
+    fi

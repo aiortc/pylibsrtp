@@ -7,9 +7,9 @@ if [ -e "libsrtp" ]; then
 else
     git clone https://github.com/cisco/libsrtp/
 fi
-rm -rf libsrtp/local
+rm -rf /tmp/libsrtp
 
 cd libsrtp
-./configure --prefix=$PWD/local
+./configure --prefix=/tmp/libsrtp
 make
 make install
