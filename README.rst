@@ -35,15 +35,11 @@ SRTP is a profile of the Real-time Transport Protocol (RTP) which provides
 confidentiality, message authentication, and replay protection. It is defined
 by `RFC 3711`_.
 
-``pylibsrtp`` requires libsrtp version 2.0 or better.
+You can install ``pylibsrtp`` with ``pip``:
 
-On Debian/Ubuntu run:
+.. code-block:: console
 
-    apt install libsrtp2-1
-
-On OS X run:
-
-    brew install srtp
+    $ pip install pylibsrtp
 
 To learn more about ``pylibsrtp`` please `read the documentation`_.
 
@@ -77,6 +73,23 @@ Example
 
     # check roundtrip worked!
     assert rtp2 == rtp
+
+Building pylibsrtp
+------------------
+
+If you wish to build pylibsrtp yourself, you will need libsrtp version 2.0 or better.
+
+On Debian/Ubuntu run:
+
+.. code-block:: console
+
+    $ apt install libsrtp2-dev
+
+On OS X run:
+
+.. code-block:: console
+
+    $ brew install srtp
 
 License
 -------
