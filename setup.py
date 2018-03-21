@@ -15,7 +15,7 @@ else:
 
 setuptools.setup(
     name='pylibsrtp',
-    version='0.5.0',
+    version='0.5.1',
     description='Python wrapper around the libsrtp library',
     long_description=long_description,
     url='https://github.com/jlaine/pylibsrtp',
@@ -23,8 +23,7 @@ setuptools.setup(
     author_email='jeremy.laine@m4x.org',
     license='BSD',
     classifiers=[
-        'Development Status :: 4 - Beta',
-        'Environment :: Web Environment',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
@@ -32,6 +31,8 @@ setuptools.setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Topic :: Communications :: Telephony',
+        'Topic :: Security :: Cryptography',
     ],
     cffi_modules=cffi_modules,
     packages=['pylibsrtp'],
