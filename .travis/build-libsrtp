@@ -5,5 +5,5 @@ set -e
 git clone https://github.com/cisco/libsrtp/
 cd libsrtp
 ./configure --prefix=$PWD/local
-make shared_library
+make
 make install

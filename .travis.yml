@@ -12,7 +12,6 @@ install:
       .travis/build-libsrtp
       export CFLAGS=-I$PWD/libsrtp/local/include
       export LDFLAGS=-L$PWD/libsrtp/local/lib
-      export LD_LIBRARY_PATH=$PWD/libsrtp/local/lib:$LD_LIBRARY_PATH
     fi
   - pip install coveralls flake8
 language: python
