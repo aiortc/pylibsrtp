@@ -12,10 +12,8 @@ install:
       brew update
       brew upgrade python3
     fi
-    if [ "$BUILD" = "sdist" ]; then
-      pip3 install twine
-    elif [ "$BUILD" = "wheel" ]; then
-      pip3 install cibuildwheel twine
+    if [ "$BUILD" = "wheel" ]; then
+      pip3 install cibuildwheel
     else
       .travis/build-libsrtp
       export CFLAGS=-I/tmp/libsrtp/include
@@ -43,11 +41,13 @@ script:
     if [ "$BUILD" = "sdist" ]; then
       python3 setup.py sdist
       if [ -n "$TRAVIS_TAG" ]; then
+        pip3 install twine
         twine upload --skip-existing dist/*
       fi
     elif [ "$BUILD" = "wheel" ]; then
       cibuildwheel --output-dir wheelhouse
       if [ -n "$TRAVIS_TAG" ]; then
+        pip3 install twine
         twine upload --skip-existing wheelhouse/*
       fi
     else
