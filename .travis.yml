@@ -42,13 +42,13 @@ script:
       python3 setup.py sdist
       if [ -n "$TRAVIS_TAG" ]; then
         pip3 install twine
-        twine upload --skip-existing dist/*
+        python3 -m twine upload --skip-existing dist/*
       fi
     elif [ "$BUILD" = "wheel" ]; then
       cibuildwheel --output-dir wheelhouse
       if [ -n "$TRAVIS_TAG" ]; then
         pip3 install twine
-        twine upload --skip-existing wheelhouse/*
+        python3 -m twine upload --skip-existing wheelhouse/*
       fi
     else
       flake8 pylibsrtp
