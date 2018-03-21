@@ -2,7 +2,13 @@
 
 set -e
 
-git clone https://github.com/cisco/libsrtp/
+if [ -e "libsrtp" ]; then
+    make -C libsrtp distclean
+else
+    git clone https://github.com/cisco/libsrtp/
+fi
+rm -rf libsrtp/local
+
 cd libsrtp
 ./configure --prefix=$PWD/local
 make
