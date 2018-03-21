@@ -1,4 +1,3 @@
 include LICENSE
-include tests.py
 recursive-include docs *.py *.rst Makefile
 recursive-include src *.py
