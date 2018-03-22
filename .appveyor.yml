@@ -8,3 +8,8 @@ install:
   - cmd: C:\Python36-x64\python.exe -m pip install cibuildwheel
 build_script:
   - cmd: C:\Python36-x64\python.exe -m cibuildwheel --output-dir wheelhouse
+  - ps: >-
+      if ($env:APPVEYOR_REPO_TAG -eq "true") {
+        Invoke-Expression "python -m pip install twine"
+        Invoke-Expression "python -m twine upload --skip-existing wheelhouse/*.whl"
+      }
