@@ -1,7 +1,13 @@
-from cffi import FFI
-ffibuilder = FFI()
+import sys
 
-ffibuilder.set_source('pylibsrtp._binding', '#include <srtp2/srtp.h>', libraries=['srtp2'])
+from cffi import FFI
+
+libraries = ['srtp2']
+if sys.platform == 'win32':
+    libraries += ['ws2_32']
+
+ffibuilder = FFI()
+ffibuilder.set_source('pylibsrtp._binding', '#include <srtp2/srtp.h>', libraries=libraries)
 
 ffibuilder.cdef("""
 typedef uint32_t srtp_auth_type_id_t;
