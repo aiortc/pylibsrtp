@@ -4,7 +4,7 @@ env:
   global:
     - CIBW_BEFORE_BUILD=.travis/build-libsrtp
     - CIBW_ENVIRONMENT="CFLAGS=-I/tmp/libsrtp/include LDFLAGS=-L/tmp/libsrtp/lib"
-    - CIBW_SKIP="cp27-* cp33-*"
+    - CIBW_SKIP="cp27-* cp33-* cp34-*"
     - CIBW_TEST_COMMAND="python3 -m unittest pylibsrtp.tests"
 install:
   - |
