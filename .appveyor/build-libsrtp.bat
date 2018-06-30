@@ -8,7 +8,7 @@ for %%d in (libsrtp %destdir%) do (
 
 git clone https://github.com/cisco/libsrtp/
 cd libsrtp
-git checkout -qf v2.1.0
+git checkout -qf v2.2.0
 
 if "%PYTHON_ARCH%" == "64" (
     msbuild srtp2.vcxproj /p:Configuration=Release /p:Platform=x64
