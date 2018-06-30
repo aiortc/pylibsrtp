@@ -12,6 +12,7 @@ install:
       brew update
       brew upgrade python3
     fi
+    pip3 install -U cffi setuptools
     if [ "$BUILD" = "wheel" ]; then
       pip3 install cibuildwheel
     else
@@ -27,6 +28,7 @@ matrix:
     os: osx
   - python: "3.5"
   - python: "3.6"
+  - python: "3.7-dev"
   - python: "pypy3"
   - env: BUILD=sdist
     python: "3.6"
