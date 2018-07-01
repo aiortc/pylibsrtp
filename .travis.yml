@@ -2,7 +2,7 @@ after_success: coveralls
 dist: trusty
 env:
   global:
-    - CIBW_BEFORE_BUILD="pip install cffi && .travis/build-libsrtp"
+    - CIBW_BEFORE_BUILD=".travis/build-libsrtp"
     - CIBW_ENVIRONMENT="CFLAGS=-I/tmp/libsrtp/include LDFLAGS=-L/tmp/libsrtp/lib"
     - CIBW_SKIP="cp27-* cp33-* cp34-*"
     - CIBW_TEST_COMMAND="python3 -m unittest pylibsrtp.tests"
@@ -12,7 +12,7 @@ install:
       brew update
       brew upgrade python3
     fi
-    pip3 install -U cffi setuptools
+    pip3 install -U setuptools
     if [ "$BUILD" = "wheel" ]; then
       pip3 install cibuildwheel
     else
