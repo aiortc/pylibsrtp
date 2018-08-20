@@ -90,6 +90,9 @@ class Policy:
 
     @property
     def key(self):
+        """
+        The SRTP master key.
+        """
         if self.__cdata is None:
             return None
         return ffi.buffer(self.__cdata)
@@ -109,6 +112,9 @@ class Policy:
 
     @property
     def ssrc_type(self):
+        """
+        The SSRC type.
+        """
         return self._policy.ssrc.type
 
     @ssrc_type.setter
@@ -117,6 +123,9 @@ class Policy:
 
     @property
     def ssrc_value(self):
+        """
+        The SSRC value, if it is not a wildcard.
+        """
         return self._policy.ssrc.value
 
     @ssrc_value.setter
