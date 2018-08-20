@@ -22,6 +22,22 @@ KEY = (
 
 
 class PolicyTest(TestCase):
+    def test_allow_repeat_tx(self):
+        policy = Policy()
+        self.assertEqual(policy.allow_repeat_tx, False)
+
+        policy.allow_repeat_tx = True
+        self.assertEqual(policy.allow_repeat_tx, True)
+
+        policy.allow_repeat_tx = False
+        self.assertEqual(policy.allow_repeat_tx, False)
+
+        policy.allow_repeat_tx = 1
+        self.assertEqual(policy.allow_repeat_tx, True)
+
+        policy.allow_repeat_tx = 0
+        self.assertEqual(policy.allow_repeat_tx, False)
+
     def test_key(self):
         policy = Policy()
         self.assertEqual(policy.key, None)

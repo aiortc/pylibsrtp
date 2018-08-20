@@ -78,6 +78,17 @@ class Policy:
         self.ssrc_value = ssrc_value
 
     @property
+    def allow_repeat_tx(self):
+        """
+        Whether retransmissions of packets with the same sequence number are allowed.
+        """
+        return self._policy.allow_repeat_tx == 1
+
+    @allow_repeat_tx.setter
+    def allow_repeat_tx(self, allow_repeat_tx):
+        self._policy.allow_repeat_tx = 1 if allow_repeat_tx else 0
+
+    @property
     def key(self):
         if self.__cdata is None:
             return None
