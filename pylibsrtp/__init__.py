@@ -132,6 +132,17 @@ class Policy:
     def ssrc_value(self, ssrc_value):
         self._policy.ssrc.value = ssrc_value
 
+    @property
+    def window_size(self):
+        """
+        The window size to use for replay protection.
+        """
+        return self._policy.window_size
+
+    @window_size.setter
+    def window_size(self, window_size):
+        self._policy.window_size = window_size
+
 
 class Session:
     """

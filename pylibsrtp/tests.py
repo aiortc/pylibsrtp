@@ -67,6 +67,13 @@ class PolicyTest(TestCase):
         policy.ssrc_value = 12345
         self.assertEqual(policy.ssrc_value, 12345)
 
+    def test_window_size(self):
+        policy = Policy()
+        self.assertEqual(policy.window_size, 0)
+
+        policy.window_size = 1024
+        self.assertEqual(policy.window_size, 1024)
+
 
 class SessionTest(TestCase):
     def test_no_key(self):
