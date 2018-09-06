@@ -37,6 +37,6 @@ setuptools.setup(
     ],
     cffi_modules=cffi_modules,
     packages=['pylibsrtp'],
-    install_requires=['cffi'],
-    setup_requires=['cffi'],
+    install_requires=['cffi>=1.0.0'],
+    setup_requires=['cffi>=1.0.0'],
 )
