@@ -15,7 +15,7 @@ else:
 
 setuptools.setup(
     name='pylibsrtp',
-    version='0.5.7',
+    version='0.6.0',
     description='Python wrapper around the libsrtp library',
     long_description=long_description,
     url='https://github.com/jlaine/pylibsrtp',
