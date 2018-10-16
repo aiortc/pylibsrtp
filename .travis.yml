@@ -1,4 +1,3 @@
-after_success: coveralls
 dist: trusty
 env:
   global:
@@ -6,21 +5,7 @@ env:
     - CIBW_ENVIRONMENT="CFLAGS=-I/tmp/libsrtp/include LDFLAGS=-L/tmp/libsrtp/lib"
     - CIBW_SKIP="cp27-* cp33-* cp34-*"
     - CIBW_TEST_COMMAND="python3 -m unittest pylibsrtp.tests"
-install:
-  - |
-    if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-      brew update
-      brew upgrade python3
-    fi
-    pip3 install -U setuptools
-    if [ "$BUILD" = "wheel" ]; then
-      pip3 install cibuildwheel
-    else
-      .travis/build-libsrtp
-      export CFLAGS=-I/tmp/libsrtp/include
-      export LDFLAGS=-L/tmp/libsrtp/lib
-      pip3 install coveralls flake8
-    fi
+install: source .travis/install
 language: python
 matrix:
   include:
@@ -29,9 +14,6 @@ matrix:
   - python: "3.5"
   - python: "3.6"
   - python: "3.7"
-    dist: xenial
-    sudo: true
-  - python: "3.8-dev"
     dist: xenial
     sudo: true
   - python: "pypy3"
@@ -43,21 +25,4 @@ matrix:
   - env: BUILD=wheel
     os: osx
     language: generic
-script:
-  - |
-    if [ "$BUILD" = "sdist" ]; then
-      python3 setup.py sdist
-      if [ -n "$TRAVIS_TAG" ]; then
-        pip3 install twine
-        python3 -m twine upload --skip-existing dist/*
-      fi
-    elif [ "$BUILD" = "wheel" ]; then
-      cibuildwheel --output-dir wheelhouse
-      if [ -n "$TRAVIS_TAG" ]; then
-        pip3 install twine
-        python3 -m twine upload --skip-existing wheelhouse/*
-      fi
-    else
-      flake8 pylibsrtp
-      coverage run setup.py test
-    fi
+script: .travis/script

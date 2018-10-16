@@ -1,7 +1,7 @@
 pylibsrtp
 =========
 
-|rtd| |pypi-v| |pypi-pyversions| |pypi-l| |pypi-wheel| |travis| |coveralls|
+|rtd| |pypi-v| |pypi-pyversions| |pypi-l| |pypi-wheel| |travis| |codecov|
 
 .. |rtd| image:: https://readthedocs.org/projects/pylibsrtp/badge/?version=latest
    :target: https://pylibsrtp.readthedocs.io/
@@ -21,8 +21,8 @@ pylibsrtp
 .. |travis| image:: https://img.shields.io/travis/jlaine/pylibsrtp.svg
     :target: https://travis-ci.org/jlaine/pylibsrtp
 
-.. |coveralls| image:: https://img.shields.io/coveralls/jlaine/pylibsrtp.svg
-    :target: https://coveralls.io/github/jlaine/pylibsrtp
+.. |codecov| image:: https://img.shields.io/codecov/c/github/jlaine/pylibsrtp.svg
+    :target: https://codecov.io/gh/jlaine/pylibsrtp
 
 What is ``pylibsrtp``?
 ----------------------

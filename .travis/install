@@ -1,0 +1,17 @@
+#!/bin/sh
+
+set -e
+
+if [ "$TRAVIS_OS_NAME" = "osx" ]; then
+    brew update
+    brew upgrade python3
+fi
+pip3 install -U setuptools
+if [ "$BUILD" = "wheel" ]; then
+    pip3 install cibuildwheel
+else
+    .travis/build-libsrtp
+    export CFLAGS=-I/tmp/libsrtp/include
+    export LDFLAGS=-L/tmp/libsrtp/lib
+    pip3 install coverage flake8
+fi
