@@ -18,7 +18,7 @@ setuptools.setup(
     version='0.6.0',
     description='Python wrapper around the libsrtp library',
     long_description=long_description,
-    url='https://github.com/jlaine/pylibsrtp',
+    url='https://github.com/aiortc/pylibsrtp',
     author='Jeremy Lainé',
     author_email='jeremy.laine@m4x.org',
     license='BSD',
