@@ -2,10 +2,6 @@
 
 set -e
 
-if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-    brew update
-    brew upgrade python3
-fi
 pip3 install -U setuptools
 if [ "$BUILD" = "wheel" ]; then
     pip3 install cibuildwheel
