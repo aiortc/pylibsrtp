@@ -36,6 +36,7 @@ setuptools.setup(
         'Topic :: Security :: Cryptography',
     ],
     cffi_modules=cffi_modules,
+    package_data={"pylibsrtp": ["py.typed"]},
     packages=['pylibsrtp'],
     install_requires=['cffi>=1.0.0'],
     setup_requires=['cffi>=1.0.0'],

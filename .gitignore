@@ -1,6 +1,9 @@
 *.egg-info
 *.pyc
+*.so
 .coverage
+.eggs
+.vscode
 /build
 /dist
 /docs/_build
