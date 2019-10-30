@@ -2,7 +2,9 @@
 
 set -e
 
-if [ "$BUILD" = "sdist" ]; then
+if [ "$BUILD" = "lint" ]; then
+    flake8 pylibsrtp
+elif [ "$BUILD" = "sdist" ]; then
     python3 setup.py sdist
     if [ -n "$TRAVIS_TAG" ]; then
         pip3 install twine
@@ -15,7 +17,6 @@ elif [ "$BUILD" = "wheel" ]; then
         python3 -m twine upload --skip-existing wheelhouse/*
     fi
 else
-    flake8 pylibsrtp
     coverage run setup.py test
     curl -s https://codecov.io/bash | bash
 fi

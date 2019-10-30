@@ -3,11 +3,13 @@
 set -e
 
 pip3 install -U setuptools
-if [ "$BUILD" = "wheel" ]; then
+if [ "$BUILD" = "lint" ]; then
+    pip3 install flake8
+elif [ "$BUILD" = "wheel" ]; then
     pip3 install cibuildwheel
 else
     .travis/build-libsrtp
     export CFLAGS=-I/tmp/libsrtp/include
     export LDFLAGS=-L/tmp/libsrtp/lib
-    pip3 install coverage flake8
+    pip3 install coverage
 fi

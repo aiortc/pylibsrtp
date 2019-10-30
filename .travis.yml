@@ -9,6 +9,7 @@ install: source .travis/install
 language: python
 matrix:
   include:
+  - env: BUILD=lint
   - language: generic
     os: osx
   - python: "3.5"
