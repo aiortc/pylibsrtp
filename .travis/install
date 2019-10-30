@@ -5,8 +5,10 @@ set -e
 pip3 install -U setuptools
 if [ "$BUILD" = "lint" ]; then
     pip3 install flake8
+elif [ "$BUILD" = "sdist" ]; then
+    pip3 install twine
 elif [ "$BUILD" = "wheel" ]; then
-    pip3 install cibuildwheel
+    pip3 install cibuildwheel twine
 else
     .travis/build-libsrtp
     export CFLAGS=-I/tmp/libsrtp/include
