@@ -7,12 +7,12 @@ if [ "$BUILD" = "lint" ]; then
 elif [ "$BUILD" = "sdist" ]; then
     python3 setup.py sdist
     if [ -n "$TRAVIS_TAG" ]; then
-        python3 -m twine upload --skip-existing dist/*
+        twine upload --skip-existing dist/*
     fi
 elif [ "$BUILD" = "wheel" ]; then
     cibuildwheel --output-dir wheelhouse
     if [ -n "$TRAVIS_TAG" ]; then
-        python3 -m twine upload --skip-existing wheelhouse/*
+        twine upload --skip-existing wheelhouse/*
     fi
 else
     coverage run setup.py test
