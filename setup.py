@@ -11,7 +11,7 @@ with open(readme_file, encoding='utf-8') as f:
 if os.environ.get('READTHEDOCS') == 'True':
     cffi_modules=[]
 else:
-    cffi_modules=['src/build_srtp.py:ffibuilder']
+    cffi_modules=['src/_cffi_src/build_srtp.py:ffibuilder']
 
 setuptools.setup(
     name='pylibsrtp',

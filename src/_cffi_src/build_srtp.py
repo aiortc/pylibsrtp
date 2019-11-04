@@ -2,14 +2,17 @@ import sys
 
 from cffi import FFI
 
-libraries = ['srtp2']
-if sys.platform == 'win32':
-    libraries += ['ws2_32']
+libraries = ["srtp2"]
+if sys.platform == "win32":
+    libraries += ["ws2_32"]
 
 ffibuilder = FFI()
-ffibuilder.set_source('pylibsrtp._binding', '#include <srtp2/srtp.h>', libraries=libraries)
+ffibuilder.set_source(
+    "pylibsrtp._binding", "#include <srtp2/srtp.h>", libraries=libraries
+)
 
-ffibuilder.cdef("""
+ffibuilder.cdef(
+    """
 typedef enum {
   srtp_err_status_ok = 0,
   ...
@@ -60,7 +63,8 @@ srtp_err_status_t srtp_protect_rtcp(srtp_t ctx, void *rtcp_hdr, int *pkt_octet_l
 
 srtp_err_status_t srtp_unprotect(srtp_t ctx, void *srtp_hdr, int *len_ptr);
 srtp_err_status_t srtp_unprotect_rtcp(srtp_t ctx, void *srtcp_hdr, int *pkt_octet_len);
-""")
+"""
+)
 
 if __name__ == "__main__":
     ffibuilder.compile(verbose=True)
