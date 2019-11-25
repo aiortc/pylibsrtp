@@ -4,7 +4,7 @@ set -e
 
 pip3 install -U setuptools
 if [ "$BUILD" = "lint" ]; then
-    pip3 install flake8
+    pip3 install black flake8 isort
 elif [ "$BUILD" = "sdist" ]; then
     pip3 install twine
 elif [ "$BUILD" = "wheel" ]; then

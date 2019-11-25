@@ -3,7 +3,9 @@
 set -e
 
 if [ "$BUILD" = "lint" ]; then
-    flake8 pylibsrtp
+    flake8 src tests
+    isort -c -df -rc src tests
+    black --check --diff src tests
 elif [ "$BUILD" = "sdist" ]; then
     python3 setup.py sdist
     if [ -n "$TRAVIS_TAG" ]; then
