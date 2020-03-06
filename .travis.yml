@@ -9,20 +9,6 @@ install: source .travis/install
 language: python
 matrix:
   include:
-  - env: BUILD=lint
-  - env: BUILD=test
-    language: generic
-    os: osx
-  - env: BUILD=test
-    python: "3.8"
-  - env: BUILD=test
-    python: "3.7"
-  - env: BUILD=test
-    python: "3.6"
-  - env: BUILD=test
-    python: "3.5"
-  - env: BUILD=test
-    python: "pypy3"
   - env: BUILD=sdist
   - env: BUILD=wheel
     services: docker

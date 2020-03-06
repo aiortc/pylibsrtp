@@ -2,11 +2,7 @@
 
 set -e
 
-if [ "$BUILD" = "lint" ]; then
-    flake8 src tests
-    isort -c -df -rc src tests
-    black --check --diff src tests
-elif [ "$BUILD" = "sdist" ]; then
+if [ "$BUILD" = "sdist" ]; then
     python3 setup.py sdist
     if [ -n "$TRAVIS_TAG" ]; then
         twine upload --skip-existing dist/*
@@ -16,7 +12,4 @@ elif [ "$BUILD" = "wheel" ]; then
     if [ -n "$TRAVIS_TAG" ]; then
         twine upload --skip-existing wheelhouse/*
     fi
-else
-    coverage run setup.py test
-    curl -s https://codecov.io/bash | bash
 fi
