@@ -1,7 +1,7 @@
 pylibsrtp
 =========
 
-|pypi-v| |pypi-pyversions| |pypi-l| |pypi-wheel| |travis| |codecov|
+|pypi-v| |pypi-pyversions| |pypi-l| |pypi-wheel| |tests| |codecov|
 
 .. |pypi-v| image:: https://img.shields.io/pypi/v/pylibsrtp.svg
     :target: https://pypi.python.org/pypi/pylibsrtp
@@ -15,8 +15,8 @@ pylibsrtp
 .. |pypi-wheel| image:: https://img.shields.io/pypi/wheel/pylibsrtp.svg
     :target: https://pypi.python.org/pypi/pylibsrtp
 
-.. |travis| image:: https://img.shields.io/travis/com/aiortc/pylibsrtp.svg
-    :target: https://travis-ci.com/aiortc/pylibsrtp
+.. |tests| image:: https://github.com/aiortc/pylibsrtp/workflows/tests/badge.svg
+    :target: https://github.com/aiortc/pylibsrtp/actions
 
 .. |codecov| image:: https://img.shields.io/codecov/c/github/aiortc/pylibsrtp.svg
     :target: https://codecov.io/gh/aiortc/pylibsrtp
