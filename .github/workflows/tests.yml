@@ -84,7 +84,7 @@ jobs:
       - name: Build wheels
         env:
           CI: true
-          CIBW_BEFORE_BUILD: .travis/build-libsrtp
+          CIBW_BEFORE_BUILD: scripts/build-libsrtp
           CIBW_ENVIRONMENT: CFLAGS=-I/tmp/libsrtp/include LDFLAGS=-L/tmp/libsrtp/lib
           CIBW_SKIP: cp27-* cp33-* cp34-*
           CIBW_TEST_COMMAND: python -m unittest discover -s {project}/tests
