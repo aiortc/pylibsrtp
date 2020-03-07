@@ -4,6 +4,12 @@ import sys
 import setuptools
 
 root_dir = os.path.abspath(os.path.dirname(__file__))
+
+about = {}
+about_file = os.path.join(root_dir, "src", "pylibsrtp", "about.py")
+with open(about_file, encoding="utf-8") as fp:
+    exec(fp.read(), about)
+
 readme_file = os.path.join(root_dir, "README.rst")
 with open(readme_file, encoding="utf-8") as f:
     long_description = f.read()
@@ -14,14 +20,14 @@ else:
     cffi_modules = ["src/_cffi_src/build_srtp.py:ffibuilder"]
 
 setuptools.setup(
-    name="pylibsrtp",
-    version="0.6.4",
-    description="Python wrapper around the libsrtp library",
+    name=about["__title__"],
+    version=about["__version__"],
+    description=about["__summary__"],
     long_description=long_description,
-    url="https://github.com/aiortc/pylibsrtp",
-    author="Jeremy Lainé",
-    author_email="jeremy.laine@m4x.org",
-    license="BSD",
+    url=about["__uri__"],
+    author=about["__author__"],
+    author_email=about["__email__"],
+    license=about["__license__"],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
