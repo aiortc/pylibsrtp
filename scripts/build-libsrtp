@@ -2,7 +2,7 @@
 
 set -e
 
-destdir=/tmp/libsrtp
+destdir=$1
 
 for d in libsrtp $destdir; do
     if [ -e $d ]; then
