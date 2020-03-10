@@ -72,19 +72,29 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-python@v1
         with:
           python-version: 3.7
+      - name: Set environment (*nix)
+        if: matrix.os != 'windows-latest'
+        run:
+          echo "::set-env name=CIBW_BEFORE_BUILD::scripts/build-libsrtp"
+          echo "::set-env name=CIBW_ENVIRONMENT::CFLAGS=-I/tmp/libsrtp/include LDFLAGS=-L/tmp/libsrtp/lib"
+      - name: Set environment (windows)
+        if: matrix.os == 'windows-latest'
+        run:
+          echo "::set-env name=CIBW_BEFORE_BUILD::scripts\build-libsrtp.bat"
+          echo "::set-env name=CL::/I%TEMP%\libsrtp.install\include"
+          echo "::set-env name=LINK::/LIBPATH:%TEMP%\libsrtp.install\lib"
       - name: Build wheels
         env:
           CI: true
-          CIBW_BEFORE_BUILD: scripts/build-libsrtp
-          CIBW_ENVIRONMENT: CFLAGS=-I/tmp/libsrtp/include LDFLAGS=-L/tmp/libsrtp/lib
           CIBW_SKIP: cp27-* cp33-* cp34-* pp27-*
           CIBW_TEST_COMMAND: python -m unittest discover -s {project}/tests
+        shell: bash
         run: |
           pip install cibuildwheel
           cibuildwheel --output-dir dist
@@ -110,6 +120,10 @@ jobs:
       - uses: actions/download-artifact@v1
         with:
           name: dist-ubuntu-latest
+          path: dist/
+      - uses: actions/download-artifact@v1
+        with:
+          name: dist-windows-latest
           path: dist/
       - name: Publish to PyPI
         if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/')
