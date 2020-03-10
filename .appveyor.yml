@@ -1,6 +1,6 @@
 environment:
-  CIBW_BEFORE_BUILD: scripts/build-libsrtp.bat
-  CIBW_SKIP: cp27-* cp33-* cp34-*
+  CIBW_BEFORE_BUILD: scripts\build-libsrtp.bat
+  CIBW_SKIP: cp27-* cp33-* cp34-* pp27-*
   CIBW_TEST_COMMAND: python -m unittest discover -s {project}/tests
   CL: /I%TEMP%\libsrtp.install\include
   LINK: /LIBPATH:%TEMP%\libsrtp.install\lib
