@@ -1,4 +1,4 @@
-set destdir=%TEMP%\libsrtp.install
+set destdir=%1
 
 for %%d in (libsrtp %destdir%) do (
     if exist %%d (
@@ -10,11 +10,14 @@ git clone https://github.com/cisco/libsrtp/
 cd libsrtp
 git checkout -qf v2.2.0
 
-if "%PYTHON_ARCH%" == "64" (
-    msbuild srtp2.vcxproj /p:Configuration=Release /p:Platform=x64
-) else (
-    msbuild srtp2.vcxproj /p:Configuration=Release
+set MSBUILD_OPTIONS=/p:Configuration=Release
+if "%GITHUB_ACTIONS%" == "true" (
+    set MSBUILD_OPTIONS=%MSBUILD_OPTIONS% /p:PlatformToolset=v142
 )
+if "%PYTHON_ARCH%" == "64" (
+    set MSBUILD_OPTIONS=%MSBUILD_OPTIONS% /p:Platform=x64
+)
+msbuild srtp2.vcxproj %MSBUILD_OPTIONS%
 
 mkdir %destdir%
 mkdir %destdir%\include
