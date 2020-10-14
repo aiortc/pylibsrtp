@@ -86,7 +86,7 @@ jobs:
           CIBW_BEFORE_BUILD: scripts/build-libsrtp /tmp/vendor
           CIBW_BEFORE_BUILD_WINDOWS: scripts\build-libsrtp.bat C:\cibw\vendor
           CIBW_ENVIRONMENT: CFLAGS=-I/tmp/vendor/include LDFLAGS=-L/tmp/vendor/lib
-          CIBW_ENVIRONMENT_WINDOWS: CL="/IC:\cibw\vendor\include" LINK="/LIBPATH:C:\cibw\vendor\lib"
+          CIBW_ENVIRONMENT_WINDOWS: INCLUDE=C:\\cibw\\vendor\\include LIB=C:\\cibw\\vendor\\lib
           CIBW_SKIP: cp27-* cp33-* cp34-* pp27-* pp36-win*
           CIBW_TEST_COMMAND: python -m unittest discover -s {project}/tests
         shell: bash
