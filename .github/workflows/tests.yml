@@ -80,7 +80,7 @@ jobs:
           python-version: 3.7
       - name: Add msbuild to PATH
         if: matrix.os == 'windows-latest'
-        uses: microsoft/setup-msbuild@v1.0.0
+        uses: microsoft/setup-msbuild@v1.0.2
       - name: Build wheels
         env:
           CIBW_BEFORE_BUILD: scripts/build-libsrtp /tmp/vendor
