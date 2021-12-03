@@ -8,28 +8,22 @@ for %%d in (libsrtp %destdir%) do (
 
 git clone https://github.com/cisco/libsrtp/
 cd libsrtp
-git checkout -qf v2.2.0
+git checkout -qf v2.4.2
 
-set MSBUILD_OPTIONS=/p:Configuration=Release
-if "%GITHUB_ACTIONS%" == "true" (
-    set MSBUILD_OPTIONS=%MSBUILD_OPTIONS% /p:PlatformToolset=v142
-)
 if "%PYTHON_ARCH%" == "64" (
-    set MSBUILD_OPTIONS=%MSBUILD_OPTIONS% /p:Platform=x64
+    set CMAKE_OPTIONS=-A x64
+) else (
+    set CMAKE_OPTIONS=-A Win32
 )
-msbuild srtp2.vcxproj %MSBUILD_OPTIONS%
+cmake . -G "Visual Studio 16 2019" %CMAKE_OPTIONS%
+cmake --build . --config Release
 
 mkdir %destdir%
 mkdir %destdir%\include
 mkdir %destdir%\include\srtp2
 mkdir %destdir%\lib
 
-for %%d in (include\srtp.h include\ekt.h crypto\include\cipher.h crypto\include\auth.h crypto\include\crypto_types.h) do (
+for %%d in (include\srtp.h crypto\include\auth.h crypto\include\cipher.h crypto\include\crypto_types.h) do (
 	 copy %%d %destdir%\include\srtp2
 )
-
-if "%PYTHON_ARCH%" == "64" (
-    copy x64\Release\srtp2.lib %destdir%\lib\srtp2.lib
-) else (
-    copy Release\srtp2.lib %destdir%\lib\srtp2.lib
-)
+copy Release\srtp2.lib %destdir%\lib\srtp2.lib
