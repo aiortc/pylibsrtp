@@ -90,6 +90,7 @@ jobs:
       - name: Build wheels
         env:
           CIBW_ARCHS_LINUX: auto aarch64
+          CIBW_ARCHS_MACOS: x86_64 arm64
           CIBW_BEFORE_BUILD: scripts/build-libsrtp /tmp/vendor
           CIBW_BEFORE_BUILD_WINDOWS: scripts\build-libsrtp.bat C:\cibw\vendor
           CIBW_ENVIRONMENT: CFLAGS=-I/tmp/vendor/include LDFLAGS=-L/tmp/vendor/lib
