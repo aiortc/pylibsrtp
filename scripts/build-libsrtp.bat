@@ -15,7 +15,7 @@ if "%PYTHON_ARCH%" == "64" (
 ) else (
     set CMAKE_OPTIONS=-A Win32
 )
-cmake . -G "Visual Studio 16 2019" %CMAKE_OPTIONS%
+cmake . -G "Visual Studio 17 2022" %CMAKE_OPTIONS%
 cmake --build . --config Release
 
 mkdir %destdir%
