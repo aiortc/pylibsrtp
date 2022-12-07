@@ -85,6 +85,12 @@ On Debian/Ubuntu run:
 
     $ apt install libsrtp2-dev
 
+On Fedora/CentOS run:
+
+.. code-block:: console
+
+    $ dnf install libsrtp-devel
+
 On OS X run:
 
 .. code-block:: console
