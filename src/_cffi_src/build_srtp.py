@@ -19,6 +19,14 @@ typedef enum {
 } srtp_err_status_t;
 
 typedef enum {
+  srtp_profile_aes128_cm_sha1_80 = 1,
+  srtp_profile_aes128_cm_sha1_32 = 2,
+  srtp_profile_aead_aes_128_gcm = 7,
+  srtp_profile_aead_aes_256_gcm = 8,
+  ...
+} srtp_profile_t;
+
+typedef enum {
   ssrc_undefined = 0,
   ssrc_specific = 1,
   ssrc_any_inbound = 2,
@@ -54,6 +62,14 @@ srtp_err_status_t srtp_dealloc(srtp_t s);
 
 void srtp_crypto_policy_set_rtp_default(srtp_crypto_policy_t *p);
 void srtp_crypto_policy_set_rtcp_default(srtp_crypto_policy_t *p);
+
+srtp_err_status_t srtp_crypto_policy_set_from_profile_for_rtp(
+    srtp_crypto_policy_t *policy, srtp_profile_t profile);
+srtp_err_status_t srtp_crypto_policy_set_from_profile_for_rtcp(
+    srtp_crypto_policy_t *policy, srtp_profile_t profile);
+
+unsigned int srtp_profile_get_master_key_length(srtp_profile_t profile);
+unsigned int srtp_profile_get_master_salt_length(srtp_profile_t profile);
 
 srtp_err_status_t srtp_add_stream(srtp_t session, const srtp_policy_t *policy);
 srtp_err_status_t srtp_remove_stream(srtp_t session, unsigned int ssrc);

@@ -60,6 +60,15 @@ class Policy:
     Policy for single SRTP stream.
     """
 
+    #: AES-128 CM mode with 80-bit authentication tag (default)
+    SRTP_PROFILE_AES128_CM_SHA1_80 = lib.srtp_profile_aes128_cm_sha1_80
+    #: AES-128 CM mode with 32-bit authentication tag
+    SRTP_PROFILE_AES128_CM_SHA1_32 = lib.srtp_profile_aes128_cm_sha1_32
+    #: AES-128 GCM mode
+    SRTP_PROFILE_AEAD_AES_128_GCM = lib.srtp_profile_aead_aes_128_gcm
+    #: AES-256 GCM mode
+    SRTP_PROFILE_AEAD_AES_256_GCM = lib.srtp_profile_aead_aes_256_gcm
+
     #: Indicates an undefined SSRC type
     SSRC_UNDEFINED = lib.ssrc_undefined
     #: Indicates a specific SSRC value
@@ -74,10 +83,21 @@ class Policy:
         key: Optional[bytes] = None,
         ssrc_type: int = SSRC_UNDEFINED,
         ssrc_value: int = 0,
+        srtp_profile: int = SRTP_PROFILE_AES128_CM_SHA1_80,
     ) -> None:
         self._policy = ffi.new("srtp_policy_t *")
-        lib.srtp_crypto_policy_set_rtp_default(ffi.addressof(self._policy.rtp))
-        lib.srtp_crypto_policy_set_rtcp_default(ffi.addressof(self._policy.rtcp))
+        self._srtp_profile = srtp_profile
+
+        _srtp_assert(
+            lib.srtp_crypto_policy_set_from_profile_for_rtp(
+                ffi.addressof(self._policy.rtp), srtp_profile
+            )
+        )
+        _srtp_assert(
+            lib.srtp_crypto_policy_set_from_profile_for_rtcp(
+                ffi.addressof(self._policy.rtcp), srtp_profile
+            )
+        )
 
         self.key = key
         self.ssrc_type = ssrc_type
@@ -97,7 +117,7 @@ class Policy:
     @property
     def key(self) -> Optional[bytes]:
         """
-        The SRTP master key.
+        The SRTP master key + master salt.
         """
         if self.__cdata is None:
             return None
@@ -106,15 +126,29 @@ class Policy:
     @key.setter
     def key(self, key: Optional[bytes]) -> None:
         if key is None:
+            # Clear the key.
             self.__cdata = None
             self._policy.key = ffi.NULL
             return
 
+        # Check the key is acceptable then assign it.
+        expected_length = lib.srtp_profile_get_master_key_length(
+            self._srtp_profile
+        ) + lib.srtp_profile_get_master_salt_length(self._srtp_profile)
         if not isinstance(key, bytes):
             raise TypeError("key must be bytes")
+        if len(key) < expected_length:
+            raise ValueError("key must contain at least %d bytes" % expected_length)
         self.__cdata = ffi.new("unsigned char[]", len(key))
         self.__cdata[0 : len(key)] = key
         self._policy.key = self.__cdata
+
+    @property
+    def srtp_profile(self) -> int:
+        """
+        The SRTP profile.
+        """
+        return self._srtp_profile
 
     @property
     def ssrc_type(self) -> int:

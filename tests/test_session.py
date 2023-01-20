@@ -1,3 +1,5 @@
+import dataclasses
+import secrets
 from unittest import TestCase
 
 from pylibsrtp import Error, Policy, Session
@@ -12,13 +14,49 @@ RTCP = (
     b"\x00\x00\x94\x20\x00\x00\x00\x9e\x00\x00\x9b\x88"
 )
 
-# Set key to predetermined value
-KEY = (
-    b"\x00\x01\x02\x03\x04\x05\x06\x07"
-    b"\x08\x09\x0a\x0b\x0c\x0d\x0e\x0f"
-    b"\x10\x11\x12\x13\x14\x15\x16\x17"
-    b"\x18\x19\x1a\x1b\x1c\x1d"
-)
+
+@dataclasses.dataclass
+class Profile:
+    key_length: int
+    protected_rtp_length: int
+    protected_rtcp_length: int
+    srtp_profile: int
+
+
+# AES-GCM may not be supported depending on how libsrtp2 was built.
+SRTP_PROFILES = [
+    Profile(
+        key_length=30,
+        protected_rtp_length=182,
+        protected_rtcp_length=42,
+        srtp_profile=Policy.SRTP_PROFILE_AES128_CM_SHA1_80,
+    ),
+    Profile(
+        key_length=30,
+        protected_rtp_length=176,
+        protected_rtcp_length=42,
+        srtp_profile=Policy.SRTP_PROFILE_AES128_CM_SHA1_32,
+    ),
+]
+try:
+    Policy(srtp_profile=Policy.SRTP_PROFILE_AEAD_AES_128_GCM)
+except Error:
+    pass
+else:
+    SRTP_PROFILES += [
+        Profile(
+            key_length=28,
+            protected_rtp_length=188,
+            protected_rtcp_length=48,
+            srtp_profile=Policy.SRTP_PROFILE_AEAD_AES_128_GCM,
+        ),
+        Profile(
+            key_length=44,
+            protected_rtp_length=188,
+            protected_rtcp_length=48,
+            srtp_profile=Policy.SRTP_PROFILE_AEAD_AES_256_GCM,
+        ),
+    ]
 
 
 class PolicyTest(TestCase):
@@ -39,19 +77,44 @@ class PolicyTest(TestCase):
         self.assertEqual(policy.allow_repeat_tx, False)
 
     def test_key(self):
+        key = secrets.token_bytes(30)
+
         policy = Policy()
         self.assertEqual(policy.key, None)
 
-        policy.key = KEY
-        self.assertEqual(policy.key, KEY)
+        policy.key = key
+        self.assertEqual(policy.key, key)
 
         policy.key = None
         self.assertEqual(policy.key, None)
 
+        # Key is not bytes.
         with self.assertRaises(TypeError) as cm:
             policy.key = 1234
         self.assertEqual(policy.key, None)
         self.assertEqual(str(cm.exception), "key must be bytes")
+
+        # Key is too short.
+        with self.assertRaises(ValueError) as cm:
+            policy.key = b"0"
+        self.assertEqual(policy.key, None)
+        self.assertEqual(str(cm.exception), "key must contain at least 30 bytes")
+
+    def test_srtp_policy(self):
+        # Default profile.
+        policy = Policy()
+        self.assertEqual(policy.srtp_profile, Policy.SRTP_PROFILE_AES128_CM_SHA1_80)
+
+        # Valid user-specified profiles.
+        for profile in SRTP_PROFILES:
+            with self.subTest(profile=profile):
+                policy = Policy(srtp_profile=profile.srtp_profile)
+                self.assertEqual(policy.srtp_profile, profile.srtp_profile)
+
+        # Invalid profile.
+        with self.assertRaises(Error) as cm:
+            Policy(srtp_profile=0)
+        self.assertEqual(str(cm.exception), "unsupported parameter")
 
     def test_ssrc_type(self):
         policy = Policy()
@@ -84,86 +147,142 @@ class SessionTest(TestCase):
         self.assertEqual(str(cm.exception), "unsupported parameter")
 
     def test_add_remove_stream(self):
-        # protect RTP
-        tx_session = Session(
-            policy=Policy(key=KEY, ssrc_type=Policy.SSRC_SPECIFIC, ssrc_value=12345)
-        )
-        protected = tx_session.protect(RTP)
-        self.assertEqual(len(protected), 182)
+        for profile in SRTP_PROFILES:
+            with self.subTest(profile=profile):
+                key = secrets.token_bytes(profile.key_length)
 
-        # add stream and unprotect RTP
-        rx_session = Session()
-        rx_session.add_stream(
-            Policy(key=KEY, ssrc_type=Policy.SSRC_SPECIFIC, ssrc_value=12345)
-        )
-        unprotected = rx_session.unprotect(protected)
-        self.assertEqual(len(unprotected), 172)
-        self.assertEqual(unprotected, RTP)
+                # protect RTP
+                tx_session = Session(
+                    policy=Policy(
+                        key=key,
+                        srtp_profile=profile.srtp_profile,
+                        ssrc_type=Policy.SSRC_SPECIFIC,
+                        ssrc_value=12345,
+                    )
+                )
+                protected = tx_session.protect(RTP)
+                self.assertEqual(len(protected), profile.protected_rtp_length)
 
-        # remove stream
-        rx_session.remove_stream(12345)
+                # add stream and unprotect RTP
+                rx_session = Session()
+                rx_session.add_stream(
+                    Policy(
+                        key=key,
+                        srtp_profile=profile.srtp_profile,
+                        ssrc_type=Policy.SSRC_SPECIFIC,
+                        ssrc_value=12345,
+                    )
+                )
+                unprotected = rx_session.unprotect(protected)
+                self.assertEqual(unprotected, RTP)
 
-        # try removing stream again
-        with self.assertRaises(Error) as cm:
-            rx_session.remove_stream(12345)
-        self.assertEqual(str(cm.exception), "no appropriate context found")
+                # remove stream
+                rx_session.remove_stream(12345)
+
+                # try removing stream again
+                with self.assertRaises(Error) as cm:
+                    rx_session.remove_stream(12345)
+                self.assertEqual(str(cm.exception), "no appropriate context found")
 
     def test_rtp_any_ssrc(self):
-        # protect RTP
-        tx_session = Session(policy=Policy(key=KEY, ssrc_type=Policy.SSRC_ANY_OUTBOUND))
-        protected = tx_session.protect(RTP)
-        self.assertEqual(len(protected), 182)
+        for profile in SRTP_PROFILES:
+            with self.subTest(profile=profile):
+                key = secrets.token_bytes(profile.key_length)
 
-        # bad type
-        with self.assertRaises(TypeError) as cm:
-            tx_session.protect(4567)
-        self.assertEqual(str(cm.exception), "packet must be bytes")
+                # protect RTP
+                tx_session = Session(
+                    policy=Policy(
+                        key=key,
+                        srtp_profile=profile.srtp_profile,
+                        ssrc_type=Policy.SSRC_ANY_OUTBOUND,
+                    )
+                )
+                protected = tx_session.protect(RTP)
+                self.assertEqual(len(protected), profile.protected_rtp_length)
 
-        # bad length
-        with self.assertRaises(ValueError) as cm:
-            tx_session.protect(b"0" * 1500)
-        self.assertEqual(str(cm.exception), "packet is too long")
+                # bad type
+                with self.assertRaises(TypeError) as cm:
+                    tx_session.protect(4567)
+                self.assertEqual(str(cm.exception), "packet must be bytes")
 
-        # unprotect RTP
-        rx_session = Session(policy=Policy(key=KEY, ssrc_type=Policy.SSRC_ANY_INBOUND))
-        unprotected = rx_session.unprotect(protected)
-        self.assertEqual(len(unprotected), 172)
-        self.assertEqual(unprotected, RTP)
+                # bad length
+                with self.assertRaises(ValueError) as cm:
+                    tx_session.protect(b"0" * 1500)
+                self.assertEqual(str(cm.exception), "packet is too long")
+
+                # unprotect RTP
+                rx_session = Session(
+                    policy=Policy(
+                        key=key,
+                        srtp_profile=profile.srtp_profile,
+                        ssrc_type=Policy.SSRC_ANY_INBOUND,
+                    )
+                )
+                unprotected = rx_session.unprotect(protected)
+                self.assertEqual(unprotected, RTP)
 
     def test_rtcp_any_ssrc(self):
-        # protect RCTP
-        tx_session = Session(policy=Policy(key=KEY, ssrc_type=Policy.SSRC_ANY_OUTBOUND))
-        protected = tx_session.protect_rtcp(RTCP)
-        self.assertEqual(len(protected), 42)
+        for profile in SRTP_PROFILES:
+            with self.subTest(profile=profile):
+                key = secrets.token_bytes(profile.key_length)
 
-        # bad type
-        with self.assertRaises(TypeError) as cm:
-            tx_session.protect_rtcp(4567)
-        self.assertEqual(str(cm.exception), "packet must be bytes")
+                # protect RCTP
+                tx_session = Session(
+                    policy=Policy(
+                        key=key,
+                        srtp_profile=profile.srtp_profile,
+                        ssrc_type=Policy.SSRC_ANY_OUTBOUND,
+                    )
+                )
+                protected = tx_session.protect_rtcp(RTCP)
+                self.assertEqual(len(protected), profile.protected_rtcp_length)
 
-        # bad length
-        with self.assertRaises(ValueError) as cm:
-            tx_session.protect_rtcp(b"0" * 1500)
-        self.assertEqual(str(cm.exception), "packet is too long")
+                # bad type
+                with self.assertRaises(TypeError) as cm:
+                    tx_session.protect_rtcp(4567)
+                self.assertEqual(str(cm.exception), "packet must be bytes")
 
-        # unprotect RTCP
-        rx_session = Session(policy=Policy(key=KEY, ssrc_type=Policy.SSRC_ANY_INBOUND))
-        unprotected = rx_session.unprotect_rtcp(protected)
-        self.assertEqual(len(unprotected), 28)
-        self.assertEqual(unprotected, RTCP)
+                # bad length
+                with self.assertRaises(ValueError) as cm:
+                    tx_session.protect_rtcp(b"0" * 1500)
+                self.assertEqual(str(cm.exception), "packet is too long")
+
+                # unprotect RTCP
+                rx_session = Session(
+                    policy=Policy(
+                        key=key,
+                        srtp_profile=profile.srtp_profile,
+                        ssrc_type=Policy.SSRC_ANY_INBOUND,
+                    )
+                )
+                unprotected = rx_session.unprotect_rtcp(protected)
+                self.assertEqual(unprotected, RTCP)
 
     def test_rtp_specific_ssrc(self):
-        # protect RTP
-        tx_session = Session(
-            policy=Policy(key=KEY, ssrc_type=Policy.SSRC_SPECIFIC, ssrc_value=12345)
-        )
-        protected = tx_session.protect(RTP)
-        self.assertEqual(len(protected), 182)
+        for profile in SRTP_PROFILES:
+            with self.subTest(profile=profile):
+                key = secrets.token_bytes(profile.key_length)
 
-        # unprotect RTP
-        rx_session = Session(
-            policy=Policy(key=KEY, ssrc_type=Policy.SSRC_SPECIFIC, ssrc_value=12345)
-        )
-        unprotected = rx_session.unprotect(protected)
-        self.assertEqual(len(unprotected), 172)
-        self.assertEqual(unprotected, RTP)
+                # protect RTP
+                tx_session = Session(
+                    policy=Policy(
+                        key=key,
+                        srtp_profile=profile.srtp_profile,
+                        ssrc_type=Policy.SSRC_SPECIFIC,
+                        ssrc_value=12345,
+                    )
+                )
+                protected = tx_session.protect(RTP)
+                self.assertEqual(len(protected), profile.protected_rtp_length)
+
+                # unprotect RTP
+                rx_session = Session(
+                    policy=Policy(
+                        key=key,
+                        srtp_profile=profile.srtp_profile,
+                        ssrc_type=Policy.SSRC_SPECIFIC,
+                        ssrc_value=12345,
+                    )
+                )
+                unprotected = rx_session.unprotect(protected)
+                self.assertEqual(unprotected, RTP)
