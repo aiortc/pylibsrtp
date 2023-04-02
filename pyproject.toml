@@ -29,9 +29,25 @@ classifiers = [
 dependencies = ["cffi>=1.0.0"]
 dynamic = ["version"]
 
+[project.optional-dependencies]
+dev = [
+    "coverage[toml]>=7.2.2",
+]
+
 [project.urls]
 homepage = "https://github.com/aiortc/pylibsrtp"
 documentation = "https://pylibsrtp.readthedocs.io/"
+
+[tool.coverage.run]
+source = ["pylibsrtp"]
+
+[tool.ruff]
+select = [
+    "E",  # pycodestyle
+    "F",  # Pyflakes
+    "W",  # pycodestyle
+    "I",  # isort
+]
 
 [tool.setuptools.dynamic]
 version = {attr = "pylibsrtp.__version__"}
