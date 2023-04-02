@@ -2,9 +2,9 @@ from socket import htonl
 from typing import Optional
 
 from ._binding import ffi, lib
-from .about import __version__
 
 __all__ = ["Error", "Policy", "Session", "__version__"]
+__version__ = "0.8.0"
 
 
 ERRORS = [
