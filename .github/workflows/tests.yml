@@ -24,11 +24,11 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
         python:
+          - '3.12'
           - '3.11'
           - '3.10'
           - '3.9'
           - '3.8'
-          - '3.7'
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
@@ -110,7 +110,7 @@ jobs:
           CIBW_BEFORE_BUILD_WINDOWS: scripts\build-libsrtp.bat C:\cibw\vendor
           CIBW_ENVIRONMENT: CFLAGS=-I/tmp/vendor/include LDFLAGS=-L/tmp/vendor/lib
           CIBW_ENVIRONMENT_WINDOWS: INCLUDE=C:\\cibw\\vendor\\include LIB=C:\\cibw\\vendor\\lib
-          CIBW_SKIP: cp36-* pp36-* *-musllinux*
+          CIBW_SKIP: cp37-* pp37-* *-musllinux*
           CIBW_TEST_COMMAND: python -m unittest discover -s {project}/tests
         shell: bash
         run: |
