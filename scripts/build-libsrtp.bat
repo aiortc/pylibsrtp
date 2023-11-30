@@ -8,7 +8,7 @@ for %%d in (libsrtp %destdir%) do (
 
 git clone https://github.com/cisco/libsrtp/
 cd libsrtp
-git checkout -qf v2.4.2
+git checkout -qf v2.5.0
 
 if "%PYTHON_ARCH%" == "64" (
     set CMAKE_OPTIONS=-A x64
