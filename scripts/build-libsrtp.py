@@ -32,7 +32,7 @@ if platform.system() == "Darwin" and "ARCHFLAGS" in os.environ:
 
 run(["git", "clone", "https://github.com/cisco/libsrtp/", build_dir])
 os.chdir(build_dir)
-run(["git", "checkout", "-qf", "v2.4.2"])
+run(["git", "checkout", "-qf", "v2.5.0"])
 
 run(["cmake", "."] + cmake_args)
 run(["make"])
