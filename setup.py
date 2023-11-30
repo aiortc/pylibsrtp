@@ -1,5 +1,3 @@
-import os
-
 import setuptools
 from wheel.bdist_wheel import bdist_wheel
 
@@ -14,12 +12,7 @@ class bdist_wheel_abi3(bdist_wheel):
         return python, abi, plat
 
 
-if os.environ.get("READTHEDOCS") == "True":
-    cffi_modules = []
-else:
-    cffi_modules = ["src/_cffi_src/build_srtp.py:ffibuilder"]
-
 setuptools.setup(
-    cffi_modules=cffi_modules,
+    cffi_modules=["src/_cffi_src/build_srtp.py:ffibuilder"],
     cmdclass={"bdist_wheel": bdist_wheel_abi3},
 )
