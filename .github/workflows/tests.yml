@@ -7,7 +7,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: 3.7
@@ -30,7 +30,7 @@ jobs:
           - '3.9'
           - '3.8'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
@@ -56,7 +56,7 @@ jobs:
   package-source:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: 3.7
@@ -91,7 +91,7 @@ jobs:
           - os: windows-latest
             arch: x86
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: 3.7
@@ -100,7 +100,7 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1
       - name: Set up QEMU
         if: runner.os == 'Linux'
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
         with:
           platforms: all
       - name: Build wheels
@@ -126,14 +126,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint, test, package-source, package-wheel]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v3
         with:
           name: dist
           path: dist/
       - name: Publish to PyPI
         if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags/')
-        uses: pypa/gh-action-pypi-publish@master
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}
