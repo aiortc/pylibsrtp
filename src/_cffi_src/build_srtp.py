@@ -4,7 +4,9 @@ from cffi import FFI
 
 libraries = ["srtp2"]
 if sys.platform == "win32":
-    libraries += ["ws2_32"]
+    libraries += ["libcrypto", "advapi32", "crypt32", "gdi32", "user32", "ws2_32"]
+else:
+    libraries += ["crypto"]
 
 ffibuilder = FFI()
 ffibuilder.set_source(
