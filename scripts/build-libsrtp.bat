@@ -1,6 +1,8 @@
 set destdir=%1
 
-for %%d in (libsrtp %destdir%) do (
+python scripts\fetch-vendor.py %destdir%
+
+for %%d in (libsrtp) do (
     if exist %%d (
         rmdir /s /q %%d
     )
@@ -15,7 +17,7 @@ if "%PYTHON_ARCH%" == "64" (
 ) else (
     set CMAKE_OPTIONS=-A Win32
 )
-cmake . -G "Visual Studio 17 2022" %CMAKE_OPTIONS%
+cmake . -G "Visual Studio 17 2022" %CMAKE_OPTIONS% -DENABLE_OPENSSL=ON
 cmake --build . --config Release
 
 mkdir %destdir%
