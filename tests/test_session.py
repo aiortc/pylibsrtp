@@ -5,10 +5,13 @@ from unittest import TestCase
 from pylibsrtp import Error, Policy, Session
 
 RTP = (
-    b"\x80\x08\x00\x00"  # version, packet type, sequence number
-    b"\x00\x00\x00\x00"  # timestamp
-    b"\x00\x00\x30\x39"  # ssrc: 12345
-) + (b"\xd4" * 160)
+    (
+        b"\x80\x08\x00\x00"  # version, packet type, sequence number
+        b"\x00\x00\x00\x00"  # timestamp
+        b"\x00\x00\x30\x39"  # ssrc: 12345
+    )
+    + (b"\xd4" * 160)
+)
 RTCP = (
     b"\x80\xc8\x00\x06\xf3\xcb\x20\x01\x83\xab\x03\xa1\xeb\x02\x0b\x3a"
     b"\x00\x00\x94\x20\x00\x00\x00\x9e\x00\x00\x9b\x88"

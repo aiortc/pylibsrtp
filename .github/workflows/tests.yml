@@ -12,11 +12,11 @@ jobs:
         with:
           python-version: 3.8
       - name: Install packages
-        run: pip install black ruff
+        run: pip install ruff
       - name: Run linters
         run: |
-          ruff src tests
-          black --check --diff src tests
+          ruff .
+          ruff format --check --diff .
 
   test:
     runs-on: ${{ matrix.os }}
