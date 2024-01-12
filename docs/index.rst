@@ -1,25 +1,25 @@
 pylibsrtp
 =========
 
-|pypi-v| |pypi-pyversions| |pypi-l| |pypi-wheel| |tests| |codecov|
+.. image:: https://img.shields.io/pypi/l/pylibsrtp.svg
+   :target: https://pypi.python.org/pypi/pylibsrtp
+   :alt: License
 
-.. |pypi-v| image:: https://img.shields.io/pypi/v/pylibsrtp.svg
-    :target: https://pypi.python.org/pypi/pylibsrtp
+.. image:: https://img.shields.io/pypi/v/pylibsrtp.svg
+   :target: https://pypi.python.org/pypi/pylibsrtp
+   :alt: Version
 
-.. |pypi-pyversions| image:: https://img.shields.io/pypi/pyversions/pylibsrtp.svg
-    :target: https://pypi.python.org/pypi/pylibsrtp
+.. image:: https://img.shields.io/pypi/pyversions/pylibsrtp.svg
+   :target: https://pypi.python.org/pypi/pylibsrtp
+   :alt: Python versions
 
-.. |pypi-l| image:: https://img.shields.io/pypi/l/pylibsrtp.svg
-    :target: https://pypi.python.org/pypi/pylibsrtp
+.. image:: https://github.com/aiortc/pylibsrtp/workflows/tests/badge.svg
+   :target: https://github.com/aiortc/pylibsrtp/actions
+   :alt: Tests
 
-.. |pypi-wheel| image:: https://img.shields.io/pypi/wheel/pylibsrtp.svg
-    :target: https://pypi.python.org/pypi/pylibsrtp
-
-.. |tests| image:: https://github.com/aiortc/pylibsrtp/workflows/tests/badge.svg
-    :target: https://github.com/aiortc/pylibsrtp/actions
-
-.. |codecov| image:: https://img.shields.io/codecov/c/github/aiortc/pylibsrtp.svg
-    :target: https://codecov.io/gh/aiortc/pylibsrtp
+.. image:: https://img.shields.io/codecov/c/github/aiortc/pylibsrtp.svg
+   :target: https://codecov.io/gh/aiortc/aiortc
+   :alt: Coverage
 
 ``pylibsrtp`` is a Python wrapper around `libsrtp`_, making it possible to
 encrypt and decrypt Secure Real-time Transport Protocol (SRTP) packets from
