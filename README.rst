@@ -1,28 +1,29 @@
 pylibsrtp
 =========
 
-|rtd| |pypi-v| |pypi-pyversions| |pypi-l| |pypi-wheel| |tests| |codecov|
+.. image:: https://img.shields.io/pypi/l/pylibsrtp.svg
+   :target: https://pypi.python.org/pypi/pylibsrtp
+   :alt: License
 
-.. |rtd| image:: https://readthedocs.org/projects/pylibsrtp/badge/?version=latest
+.. image:: https://img.shields.io/pypi/v/pylibsrtp.svg
+   :target: https://pypi.python.org/pypi/pylibsrtp
+   :alt: Version
+
+.. image:: https://img.shields.io/pypi/pyversions/pylibsrtp.svg
+   :target: https://pypi.python.org/pypi/pylibsrtp
+   :alt: Python versions
+
+.. image:: https://github.com/aiortc/pylibsrtp/workflows/tests/badge.svg
+   :target: https://github.com/aiortc/pylibsrtp/actions
+   :alt: Tests
+
+.. image:: https://img.shields.io/codecov/c/github/aiortc/pylibsrtp.svg
+   :target: https://codecov.io/gh/aiortc/pylibsrtp
+   :alt: Coverage
+
+.. image:: https://readthedocs.org/projects/pylibsrtp/badge/?version=latest
    :target: https://pylibsrtp.readthedocs.io/
-
-.. |pypi-v| image:: https://img.shields.io/pypi/v/pylibsrtp.svg
-    :target: https://pypi.python.org/pypi/pylibsrtp
-
-.. |pypi-pyversions| image:: https://img.shields.io/pypi/pyversions/pylibsrtp.svg
-    :target: https://pypi.python.org/pypi/pylibsrtp
-
-.. |pypi-l| image:: https://img.shields.io/pypi/l/pylibsrtp.svg
-    :target: https://pypi.python.org/pypi/pylibsrtp
-
-.. |pypi-wheel| image:: https://img.shields.io/pypi/wheel/pylibsrtp.svg
-    :target: https://pypi.python.org/pypi/pylibsrtp
-
-.. |tests| image:: https://github.com/aiortc/pylibsrtp/workflows/tests/badge.svg
-    :target: https://github.com/aiortc/pylibsrtp/actions
-
-.. |codecov| image:: https://img.shields.io/codecov/c/github/aiortc/pylibsrtp.svg
-    :target: https://codecov.io/gh/aiortc/pylibsrtp
+   :alt: Documentation
 
 What is ``pylibsrtp``?
 ----------------------
