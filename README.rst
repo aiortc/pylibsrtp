@@ -80,6 +80,9 @@ Building pylibsrtp
 
 If you wish to build pylibsrtp yourself, you will need libsrtp version 2.0 or better.
 
+Linux
+.....
+
 On Debian/Ubuntu run:
 
 .. code-block:: console
@@ -92,11 +95,21 @@ On Fedora/CentOS run:
 
     $ dnf install libsrtp-devel
 
-On OS X run:
+macOS
+.....
+
+On macOS run:
 
 .. code-block:: console
 
     $ brew install srtp
+
+You will need to set some environment variables to link against libsrtp:
+
+.. code-block:: console
+
+   export CFLAGS=-I$(brew --prefix openssl)/include -I$(brew --prefix srtp)/include
+   export LDFLAGS=-L$(brew --prefix openssl)/lib -L$(brew --prefix srtp)/lib
 
 License
 -------
