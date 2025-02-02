@@ -15,7 +15,7 @@ jobs:
         run: pip install ruff
       - name: Run linters
         run: |
-          ruff .
+          ruff check .
           ruff format --check --diff .
 
   test:

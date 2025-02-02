@@ -41,7 +41,7 @@ documentation = "https://pylibsrtp.readthedocs.io/"
 [tool.coverage.run]
 source = ["pylibsrtp"]
 
-[tool.ruff]
+[tool.ruff.lint]
 select = [
     "E",  # pycodestyle
     "F",  # Pyflakes
