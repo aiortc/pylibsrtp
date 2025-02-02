@@ -9,9 +9,10 @@ if len(sys.argv) < 2:
     sys.exit(1)
 
 dest_dir = sys.argv[1]
-build_dir = os.path.abspath("build")
+build_dir = os.path.abspath("libsrtp.build")
+source_dir = os.path.abspath("libsrtp.source")
 
-for d in [build_dir]:
+for d in [build_dir, source_dir]:
     if os.path.exists(d):
         shutil.rmtree(d)
 
@@ -33,10 +34,12 @@ if platform.system() == "Darwin" and "ARCHFLAGS" in os.environ:
 
 run(["python", "scripts/fetch-vendor.py", dest_dir])
 
-run(["git", "clone", "https://github.com/cisco/libsrtp/", build_dir])
-os.chdir(build_dir)
-run(["git", "checkout", "-qf", "v2.5.0"])
+run(["git", "clone", "https://github.com/cisco/libsrtp/", source_dir])
+os.chdir(source_dir)
+run(["git", "checkout", "-qf", "v2.6.0"])
 
-run(["cmake", "."] + cmake_args)
+os.mkdir(build_dir)
+os.chdir(build_dir)
+run(["cmake", source_dir] + cmake_args)
 run(["make"])
 run(["make", "install"])
