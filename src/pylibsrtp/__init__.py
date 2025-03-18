@@ -39,7 +39,11 @@ ERRORS = [
 ]
 
 
+# SRTP_MAX_TAG_LEN + SRTP_MAX_MKI_LEN
 SRTP_MAX_TRAILER_LEN = 16 + 128
+
+# SRTP_SRCTP_INDEX_LEN + SRTP_MAX_TAG_LEN + SRTP_MAX_MKI_LEN
+SRTP_MAX_SRTCP_TRAILER_LEN = 4 + 16 + 128
 
 
 class Error(Exception):
@@ -238,7 +242,7 @@ class Session:
         :param packet: :class:`bytes`
         :rtype: :class:`bytes`
         """
-        return self.__process(packet, lib.srtp_protect_rtcp, SRTP_MAX_TRAILER_LEN)
+        return self.__process(packet, lib.srtp_protect_rtcp, SRTP_MAX_SRTCP_TRAILER_LEN)
 
     def unprotect(self, packet: bytes) -> bytes:
         """

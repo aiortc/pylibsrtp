@@ -2,6 +2,7 @@ import dataclasses
 import secrets
 from unittest import TestCase
 
+import pylibsrtp
 from pylibsrtp import Error, Policy, Session
 
 RTP = (
@@ -207,7 +208,7 @@ class SessionTest(TestCase):
 
                 # bad length
                 with self.assertRaises(ValueError) as cm:
-                    tx_session.protect(b"0" * 1500)
+                    tx_session.protect(b"0" * (1501 - pylibsrtp.SRTP_MAX_TRAILER_LEN))
                 self.assertEqual(str(cm.exception), "packet is too long")
 
                 # unprotect RTP
@@ -244,7 +245,9 @@ class SessionTest(TestCase):
 
                 # bad length
                 with self.assertRaises(ValueError) as cm:
-                    tx_session.protect_rtcp(b"0" * 1500)
+                    tx_session.protect_rtcp(
+                        b"0" * (1501 - pylibsrtp.SRTP_MAX_SRTCP_TRAILER_LEN)
+                    )
                 self.assertEqual(str(cm.exception), "packet is too long")
 
                 # unprotect RTCP
