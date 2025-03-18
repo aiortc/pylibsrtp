@@ -140,7 +140,7 @@ class Policy:
         if len(key) < expected_length:
             raise ValueError("key must contain at least %d bytes" % expected_length)
         self.__cdata = ffi.new("unsigned char[]", len(key))
-        self.__cdata[0 : len(key)] = key
+        self.__cdata[0:len(key)] = key
         self._policy.key = self.__cdata
 
     @property
@@ -266,9 +266,9 @@ class Session:
 
         len_p = ffi.new("int *")
         len_p[0] = len(data)
-        self._buffer[0 : len(data)] = data
+        self._buffer[0:len(data)] = data
         _srtp_assert(func(self._srtp[0], self._cdata, len_p))
-        return self._buffer[0 : len_p[0]]
+        return self._buffer[0:len_p[0]]
 
 
 lib.srtp_init()
