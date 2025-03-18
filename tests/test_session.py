@@ -1,8 +1,11 @@
-import dataclasses
+import logging
 import secrets
+from typing import Optional
 from unittest import TestCase
 
 from pylibsrtp import Error, Policy, Session
+
+logger = logging.getLogger(__name__)
 
 RTP = (
     b"\x80\x08\x00\x00"  # version, packet type, sequence number
@@ -15,12 +18,25 @@ RTCP = (
 )
 
 
-@dataclasses.dataclass
 class Profile:
-    key_length: int
-    protected_rtp_length: int
-    protected_rtcp_length: int
-    srtp_profile: int
+    def __init__(self,
+                 key_length: int,
+                 protected_rtp_length: int,
+                 protected_rtcp_length: int,
+                 srtp_profile: Optional[int] = None,
+                 crypto_policy: Optional[int] = None):
+        self.key_length = key_length
+        self.protected_rtp_length = protected_rtp_length
+        self.protected_rtcp_length = protected_rtcp_length
+        self.srtp_profile = srtp_profile
+        self.crypto_policy = crypto_policy
+
+    def __repr__(self):
+        return (f'Profile(key_length={self.key_length}, '
+                f'protected_rtp_length={self.protected_rtp_length}, '
+                f'protected_rtcp_length={self.protected_rtcp_length}, '
+                f'srtp_profile={self.srtp_profile}, '
+                f'crypto_policy={self.crypto_policy})')
 
 
 # AES-GCM may not be supported depending on how libsrtp2 was built.
@@ -30,17 +46,72 @@ SRTP_PROFILES = [
         protected_rtp_length=182,
         protected_rtcp_length=42,
         srtp_profile=Policy.SRTP_PROFILE_AES128_CM_SHA1_80,
+        crypto_policy=None,
     ),
     Profile(
         key_length=30,
         protected_rtp_length=176,
         protected_rtcp_length=42,
         srtp_profile=Policy.SRTP_PROFILE_AES128_CM_SHA1_32,
+        crypto_policy=None,
+    ),
+    Profile(
+        key_length=30,
+        protected_rtp_length=182,
+        protected_rtcp_length=42,
+        srtp_profile=None,
+        crypto_policy=Policy.AES_CM_128_HMAC_SHA1_80,
+    ),
+    Profile(
+        key_length=30,
+        protected_rtp_length=176,
+        protected_rtcp_length=42,
+        srtp_profile=None,
+        crypto_policy=Policy.AES_CM_128_HMAC_SHA1_32,
+    ),
+    Profile(
+        key_length=46,
+        protected_rtp_length=182,
+        protected_rtcp_length=42,
+        srtp_profile=None,
+        crypto_policy=Policy.AES_CM_256_HMAC_SHA1_80,
+    ),
+    Profile(
+        key_length=46,
+        protected_rtp_length=176,
+        protected_rtcp_length=42,
+        srtp_profile=None,
+        crypto_policy=Policy.AES_CM_256_HMAC_SHA1_32,
     ),
 ]
+
+try:
+    Session(Policy(key=b'\x00' * 38, crypto_policy=Policy.AES_CM_192_HMAC_SHA1_80))
+except Error:
+    logger.warning("AES-192 is not supported by this libsrtp.")
+    pass
+else:
+    SRTP_PROFILES += [
+        Profile(
+            key_length=38,
+            protected_rtp_length=182,
+            protected_rtcp_length=42,
+            srtp_profile=None,
+            crypto_policy=Policy.AES_CM_192_HMAC_SHA1_80,
+        ),
+        Profile(
+            key_length=38,
+            protected_rtp_length=176,
+            protected_rtcp_length=42,
+            srtp_profile=None,
+            crypto_policy=Policy.AES_CM_192_HMAC_SHA1_32,
+        ),
+    ]
+
 try:
     Policy(srtp_profile=Policy.SRTP_PROFILE_AEAD_AES_128_GCM)
 except Error:
+    logger.warning("GCM is not supported by this libsrtp.")
     pass
 else:
     SRTP_PROFILES += [
@@ -49,12 +120,28 @@ else:
             protected_rtp_length=188,
             protected_rtcp_length=48,
             srtp_profile=Policy.SRTP_PROFILE_AEAD_AES_128_GCM,
+            crypto_policy=None,
         ),
         Profile(
             key_length=44,
             protected_rtp_length=188,
             protected_rtcp_length=48,
             srtp_profile=Policy.SRTP_PROFILE_AEAD_AES_256_GCM,
+            crypto_policy=None,
+        ),
+        Profile(
+            key_length=28,
+            protected_rtp_length=188,
+            protected_rtcp_length=48,
+            srtp_profile=None,
+            crypto_policy=Policy.AES_GCM_128_16,
+        ),
+        Profile(
+            key_length=44,
+            protected_rtp_length=188,
+            protected_rtcp_length=48,
+            srtp_profile=None,
+            crypto_policy=Policy.AES_GCM_256_16,
         ),
     ]
 
@@ -108,7 +195,8 @@ class PolicyTest(TestCase):
         # Valid user-specified profiles.
         for profile in SRTP_PROFILES:
             with self.subTest(profile=profile):
-                policy = Policy(srtp_profile=profile.srtp_profile)
+                policy = Policy(srtp_profile=profile.srtp_profile,
+                                crypto_policy=profile.crypto_policy)
                 self.assertEqual(policy.srtp_profile, profile.srtp_profile)
 
         # Invalid profile.
@@ -158,6 +246,7 @@ class SessionTest(TestCase):
                         srtp_profile=profile.srtp_profile,
                         ssrc_type=Policy.SSRC_SPECIFIC,
                         ssrc_value=12345,
+                        crypto_policy=profile.crypto_policy,
                     )
                 )
                 protected = tx_session.protect(RTP)
@@ -171,6 +260,7 @@ class SessionTest(TestCase):
                         srtp_profile=profile.srtp_profile,
                         ssrc_type=Policy.SSRC_SPECIFIC,
                         ssrc_value=12345,
+                        crypto_policy=profile.crypto_policy,
                     )
                 )
                 unprotected = rx_session.unprotect(protected)
@@ -195,6 +285,7 @@ class SessionTest(TestCase):
                         key=key,
                         srtp_profile=profile.srtp_profile,
                         ssrc_type=Policy.SSRC_ANY_OUTBOUND,
+                        crypto_policy=profile.crypto_policy,
                     )
                 )
                 protected = tx_session.protect(RTP)
@@ -216,6 +307,7 @@ class SessionTest(TestCase):
                         key=key,
                         srtp_profile=profile.srtp_profile,
                         ssrc_type=Policy.SSRC_ANY_INBOUND,
+                        crypto_policy=profile.crypto_policy,
                     )
                 )
                 unprotected = rx_session.unprotect(protected)
@@ -232,6 +324,7 @@ class SessionTest(TestCase):
                         key=key,
                         srtp_profile=profile.srtp_profile,
                         ssrc_type=Policy.SSRC_ANY_OUTBOUND,
+                        crypto_policy=profile.crypto_policy,
                     )
                 )
                 protected = tx_session.protect_rtcp(RTCP)
@@ -253,6 +346,7 @@ class SessionTest(TestCase):
                         key=key,
                         srtp_profile=profile.srtp_profile,
                         ssrc_type=Policy.SSRC_ANY_INBOUND,
+                        crypto_policy=profile.crypto_policy,
                     )
                 )
                 unprotected = rx_session.unprotect_rtcp(protected)
@@ -270,6 +364,7 @@ class SessionTest(TestCase):
                         srtp_profile=profile.srtp_profile,
                         ssrc_type=Policy.SSRC_SPECIFIC,
                         ssrc_value=12345,
+                        crypto_policy=profile.crypto_policy,
                     )
                 )
                 protected = tx_session.protect(RTP)
@@ -282,6 +377,7 @@ class SessionTest(TestCase):
                         srtp_profile=profile.srtp_profile,
                         ssrc_type=Policy.SSRC_SPECIFIC,
                         ssrc_value=12345,
+                        crypto_policy=profile.crypto_policy,
                     )
                 )
                 unprotected = rx_session.unprotect(protected)
