@@ -4,7 +4,7 @@ from typing import Optional
 from ._binding import ffi, lib
 
 __all__ = ["Error", "Policy", "Session", "__version__"]
-__version__ = "0.11.0"
+__version__ = "0.12.0"
 
 
 ERRORS = [
