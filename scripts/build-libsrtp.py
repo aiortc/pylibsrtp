@@ -36,7 +36,7 @@ run(["python", "scripts/fetch-vendor.py", dest_dir])
 
 run(["git", "clone", "https://github.com/cisco/libsrtp/", source_dir])
 os.chdir(source_dir)
-run(["git", "checkout", "-qf", "v2.6.0"])
+run(["git", "checkout", "-qf", "v2.7.0"])
 
 os.mkdir(build_dir)
 os.chdir(build_dir)

@@ -12,7 +12,7 @@ for %%d in (libsrtp) do (
 
 git clone https://github.com/cisco/libsrtp/ %source_dir%
 cd %source_dir%
-git checkout -qf v2.6.0
+git checkout -qf v2.7.0
 cd ..
 
 if "%PYTHON_ARCH%" == "64" (
