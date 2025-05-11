@@ -15,7 +15,9 @@ cd %source_dir%
 git checkout -qf v2.7.0
 cd ..
 
-if "%PYTHON_ARCH%" == "64" (
+if "%PYTHON_ARCH%" == "ARM64" (
+    set CMAKE_OPTIONS=-A ARM64
+) else if "%PYTHON_ARCH%" == "64" (
     set CMAKE_OPTIONS=-A x64
 ) else (
     set CMAKE_OPTIONS=-A Win32
