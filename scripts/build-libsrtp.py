@@ -28,6 +28,13 @@ cmake_args = [
     "-DCMAKE_VERBOSE_MAKEFILE:BOOL=ON",
     "-DENABLE_OPENSSL=ON",
 ]
+if platform.system() == "Linux" and platform.machine() == "i686":
+    # There are no binary wheels for cffi on i686 anymore.
+    try:
+        run(["yum", "-y", "install", "libffi-devel"])
+    except Exception:
+        # Alpine Linux doesn't use yum.
+        pass
 if platform.system() == "Darwin" and "ARCHFLAGS" in os.environ:
     archs = [x for x in os.environ["ARCHFLAGS"].split() if x != "-arch"]
     cmake_args.append("-DCMAKE_OSX_ARCHITECTURES=" + ";".join(archs))
