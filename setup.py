@@ -7,7 +7,7 @@ class bdist_wheel_abi3(bdist_wheel):
         python, abi, plat = super().get_tag()
 
         if python.startswith("cp"):
-            return "cp39", "abi3", plat
+            return "cp310", "abi3", plat
 
         return python, abi, plat
 

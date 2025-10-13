@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "pylibsrtp"
 description = "Python wrapper around the libsrtp library"
 readme = "README.rst"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = "BSD-3-Clause"
 authors = [
     { name = "Jeremy Lainé", email = "jeremy.laine@m4x.org" },
@@ -17,11 +17,11 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Communications :: Telephony",
     "Topic :: Security :: Cryptography",
 ]
