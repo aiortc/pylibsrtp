@@ -64,6 +64,15 @@ class Policy:
     Policy for single SRTP stream.
     """
 
+    AES_CM_128_HMAC_SHA1_80 = 1
+    AES_CM_128_HMAC_SHA1_32 = 2
+    AES_CM_192_HMAC_SHA1_80 = 3
+    AES_CM_192_HMAC_SHA1_32 = 4
+    AES_CM_256_HMAC_SHA1_80 = 5
+    AES_CM_256_HMAC_SHA1_32 = 6
+    AES_GCM_128_16 = 7
+    AES_GCM_256_16 = 8
+
     #: AES-128 CM mode with 80-bit authentication tag (default)
     SRTP_PROFILE_AES128_CM_SHA1_80 = lib.srtp_profile_aes128_cm_sha1_80
     #: AES-128 CM mode with 32-bit authentication tag
@@ -87,25 +96,67 @@ class Policy:
         key: Optional[bytes] = None,
         ssrc_type: int = SSRC_UNDEFINED,
         ssrc_value: int = 0,
-        srtp_profile: int = SRTP_PROFILE_AES128_CM_SHA1_80,
+        srtp_profile: Optional[int] = None,
+        crypto_policy: Optional[int] = None,
     ) -> None:
+        if srtp_profile is None and crypto_policy is None:
+            srtp_profile = self.SRTP_PROFILE_AES128_CM_SHA1_80
+
         self._policy = ffi.new("srtp_policy_t *")
         self._srtp_profile = srtp_profile
+        self._crypto_policy = crypto_policy
 
-        _srtp_assert(
-            lib.srtp_crypto_policy_set_from_profile_for_rtp(
-                ffi.addressof(self._policy.rtp), srtp_profile
+        if srtp_profile is not None:
+            _srtp_assert(
+                lib.srtp_crypto_policy_set_from_profile_for_rtp(
+                    ffi.addressof(self._policy.rtp), srtp_profile
+                )
             )
-        )
-        _srtp_assert(
-            lib.srtp_crypto_policy_set_from_profile_for_rtcp(
-                ffi.addressof(self._policy.rtcp), srtp_profile
+            _srtp_assert(
+                lib.srtp_crypto_policy_set_from_profile_for_rtcp(
+                    ffi.addressof(self._policy.rtcp), srtp_profile
+                )
             )
-        )
+        else:
+            self.__set_crypto_policy(crypto_policy)
 
         self.key = key
         self.ssrc_type = ssrc_type
         self.ssrc_value = ssrc_value
+
+    def __set_crypto_policy(self, crypto_policy: int) -> None:
+        rtp = ffi.addressof(self._policy.rtp)
+        rtcp = ffi.addressof(self._policy.rtcp)
+
+        if crypto_policy == self.AES_CM_128_HMAC_SHA1_80:
+            lib.srtp_crypto_policy_set_rtp_default(rtp)
+            lib.srtp_crypto_policy_set_rtcp_default(rtcp)
+        elif crypto_policy == self.AES_CM_128_HMAC_SHA1_32:
+            lib.srtp_crypto_policy_set_aes_cm_128_hmac_sha1_32(rtp)
+            # RTCP use an 80-bit auth tag.
+            lib.srtp_crypto_policy_set_rtcp_default(rtcp)
+        elif crypto_policy == self.AES_CM_192_HMAC_SHA1_80:
+            lib.srtp_crypto_policy_set_aes_cm_192_hmac_sha1_80(rtp)
+            lib.srtp_crypto_policy_set_aes_cm_192_hmac_sha1_80(rtcp)
+        elif crypto_policy == self.AES_CM_192_HMAC_SHA1_32:
+            lib.srtp_crypto_policy_set_aes_cm_192_hmac_sha1_32(rtp)
+            # RTCP use an 80-bit auth tag.
+            lib.srtp_crypto_policy_set_aes_cm_192_hmac_sha1_80(rtcp)
+        elif crypto_policy == self.AES_CM_256_HMAC_SHA1_80:
+            lib.srtp_crypto_policy_set_aes_cm_256_hmac_sha1_80(rtp)
+            lib.srtp_crypto_policy_set_aes_cm_256_hmac_sha1_80(rtcp)
+        elif crypto_policy == self.AES_CM_256_HMAC_SHA1_32:
+            lib.srtp_crypto_policy_set_aes_cm_256_hmac_sha1_32(rtp)
+            # RTCP use an 80-bit auth tag.
+            lib.srtp_crypto_policy_set_aes_cm_256_hmac_sha1_80(rtcp)
+        elif crypto_policy == self.AES_GCM_128_16:
+            lib.srtp_crypto_policy_set_aes_gcm_128_16_auth(rtp)
+            lib.srtp_crypto_policy_set_aes_gcm_128_16_auth(rtcp)
+        elif crypto_policy == self.AES_GCM_256_16:
+            lib.srtp_crypto_policy_set_aes_gcm_256_16_auth(rtp)
+            lib.srtp_crypto_policy_set_aes_gcm_256_16_auth(rtcp)
+        else:
+            raise ValueError("Unknown crypto policy")
 
     @property
     def allow_repeat_tx(self) -> bool:
@@ -117,6 +168,13 @@ class Policy:
     @allow_repeat_tx.setter
     def allow_repeat_tx(self, allow_repeat_tx: bool) -> None:
         self._policy.allow_repeat_tx = 1 if allow_repeat_tx else 0
+
+    @property
+    def crypto_policy(self) -> int:
+        """
+        The crypto policy.
+        """
+        return self._crypto_policy
 
     @property
     def key(self) -> Optional[bytes]:
@@ -136,9 +194,12 @@ class Policy:
             return
 
         # Check the key is acceptable then assign it.
-        expected_length = lib.srtp_profile_get_master_key_length(
-            self._srtp_profile
-        ) + lib.srtp_profile_get_master_salt_length(self._srtp_profile)
+        if self._srtp_profile is not None:
+            expected_length = lib.srtp_profile_get_master_key_length(
+                self._srtp_profile
+            ) + lib.srtp_profile_get_master_salt_length(self._srtp_profile)
+        else:
+            expected_length = self._policy.rtp.cipher_key_len
         if not isinstance(key, bytes):
             raise TypeError("key must be bytes")
         if len(key) < expected_length:

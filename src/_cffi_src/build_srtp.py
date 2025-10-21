@@ -35,7 +35,11 @@ typedef enum {
   ssrc_any_outbound = 3
 } srtp_ssrc_type_t;
 
+typedef uint32_t srtp_cipher_type_id_t;
+
 typedef struct srtp_crypto_policy_t {
+  srtp_cipher_type_id_t cipher_type;
+  int cipher_key_len;
   ...;
 } srtp_crypto_policy_t;
 
@@ -64,6 +68,13 @@ srtp_err_status_t srtp_dealloc(srtp_t s);
 
 void srtp_crypto_policy_set_rtp_default(srtp_crypto_policy_t *p);
 void srtp_crypto_policy_set_rtcp_default(srtp_crypto_policy_t *p);
+void srtp_crypto_policy_set_aes_cm_128_hmac_sha1_32(srtp_crypto_policy_t *p);
+void srtp_crypto_policy_set_aes_cm_256_hmac_sha1_80(srtp_crypto_policy_t *p);
+void srtp_crypto_policy_set_aes_cm_256_hmac_sha1_32(srtp_crypto_policy_t *p);
+void srtp_crypto_policy_set_aes_cm_192_hmac_sha1_80(srtp_crypto_policy_t *p);
+void srtp_crypto_policy_set_aes_cm_192_hmac_sha1_32(srtp_crypto_policy_t *p);
+void srtp_crypto_policy_set_aes_gcm_128_16_auth(srtp_crypto_policy_t *p);
+void srtp_crypto_policy_set_aes_gcm_256_16_auth(srtp_crypto_policy_t *p);
 
 srtp_err_status_t srtp_crypto_policy_set_from_profile_for_rtp(
     srtp_crypto_policy_t *policy, srtp_profile_t profile);
