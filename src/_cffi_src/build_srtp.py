@@ -81,6 +81,9 @@ srtp_err_status_t srtp_protect_rtcp(srtp_t ctx, void *rtcp_hdr, int *pkt_octet_l
 
 srtp_err_status_t srtp_unprotect(srtp_t ctx, void *srtp_hdr, int *len_ptr);
 srtp_err_status_t srtp_unprotect_rtcp(srtp_t ctx, void *srtcp_hdr, int *pkt_octet_len);
+
+srtp_err_status_t srtp_set_stream_roc(srtp_t session, uint32_t ssrc, uint32_t roc);
+srtp_err_status_t srtp_get_stream_roc(srtp_t session, uint32_t ssrc, uint32_t *roc);
 """
 )
 
