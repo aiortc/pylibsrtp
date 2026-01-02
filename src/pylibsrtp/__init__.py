@@ -262,6 +262,30 @@ class Session:
         """
         return self.__process(packet, lib.srtp_unprotect_rtcp)
 
+    def set_stream_roc(self, ssrc: int, roc: int) -> None:
+        """
+        Set the rollover counter (ROC) for a specific SSRC stream.
+
+        This is typically called immediately after adding a stream to set
+        the initial ROC value, which is useful for late joiners to a
+        multicast session.
+
+        :param ssrc: The SSRC identifying the stream.
+        :param roc: The rollover counter value to set.
+        """
+        _srtp_assert(lib.srtp_set_stream_roc(self._srtp[0], htonl(ssrc), roc))
+
+    def get_stream_roc(self, ssrc: int) -> int:
+        """
+        Get the rollover counter (ROC) for a specific SSRC stream.
+
+        :param ssrc: The SSRC identifying the stream.
+        :returns: The current rollover counter value.
+        """
+        roc_p = ffi.new("uint32_t *")
+        _srtp_assert(lib.srtp_get_stream_roc(self._srtp[0], htonl(ssrc), roc_p))
+        return roc_p[0]
+
     def __process(self, data, func, trailer=0):
         if not isinstance(data, bytes):
             raise TypeError("packet must be bytes")
