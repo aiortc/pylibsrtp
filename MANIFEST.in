@@ -1,4 +1,7 @@
+exclude .readthedocs.yaml
 include LICENSE
+include SECURITY.md
 recursive-include docs *.py *.rst Makefile
+recursive-include scripts *.py
 recursive-include src/_cffi_src *.py
 recursive-include tests *.py
