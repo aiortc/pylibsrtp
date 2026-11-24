@@ -7,8 +7,8 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.10'
       - name: Install packages
@@ -30,8 +30,8 @@ jobs:
           - '3.11'
           - '3.10'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
       - name: Install OS Packages
@@ -53,13 +53,13 @@ jobs:
           coverage run -m unittest discover -v
           coverage xml
       - name: Upload coverage report
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v7
 
   package-source:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.10'
       - name: Build source package
@@ -67,7 +67,7 @@ jobs:
           pip install -U build
           python -m build --sdist
       - name: Upload source package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dist-source
           path: dist/
@@ -97,8 +97,8 @@ jobs:
           - os: windows-11-arm
             arch: ARM64
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.11'
       - name: Add msbuild to PATH
@@ -119,7 +119,7 @@ jobs:
           pip install cibuildwheel
           cibuildwheel --output-dir dist
       - name: Upload wheels
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dist-wheel-${{ matrix.os }}-${{ matrix.arch }}
           path: dist/
@@ -128,8 +128,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint, test, package-source, package-wheel]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
         with:
           merge-multiple: true
           path: dist/
