@@ -24,7 +24,7 @@ if "%PYTHON_ARCH%" == "ARM64" (
 )
 mkdir %build_dir%
 cd %build_dir%
-cmake ..\%source_dir% -G "Visual Studio 17 2022" %CMAKE_OPTIONS% -DENABLE_OPENSSL=ON
+cmake ..\%source_dir% %CMAKE_OPTIONS% -DENABLE_OPENSSL=ON
 cmake --build . --config Release
 cd ..
 
