@@ -58,8 +58,9 @@ jobs:
           CIBW_ARCHS: ${{ matrix.arch }}
           CIBW_BEFORE_BUILD: python scripts/build-vendor.py /tmp/vendor
           CIBW_BEFORE_BUILD_WINDOWS: python scripts/build-vendor.py C:\cibw\vendor
-          CIBW_ENVIRONMENT: CFLAGS=-I/tmp/vendor/include LDFLAGS=-L/tmp/vendor/lib
-          CIBW_ENVIRONMENT_WINDOWS: INCLUDE=C:\\cibw\\vendor\\include LIB=C:\\cibw\\vendor\\lib
+          # The vendored libsrtp supports cryptex, fail the build if it is missing.
+          CIBW_ENVIRONMENT: CFLAGS=-I/tmp/vendor/include LDFLAGS=-L/tmp/vendor/lib PYLIBSRTP_REQUIRE_CRYPTEX=1
+          CIBW_ENVIRONMENT_WINDOWS: INCLUDE=C:\\cibw\\vendor\\include LIB=C:\\cibw\\vendor\\lib PYLIBSRTP_REQUIRE_CRYPTEX=1
           # The limited API is not available on free-threaded builds.
           CIBW_SKIP: 'cp3??t-*'
           CIBW_TEST_COMMAND: python -m unittest discover -s {project}/tests
