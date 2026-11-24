@@ -43,4 +43,5 @@ You can install ``pylibsrtp`` with ``pip``:
    :maxdepth: 2
 
    api
+   changelog
    license
