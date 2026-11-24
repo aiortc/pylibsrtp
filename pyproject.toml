@@ -35,6 +35,7 @@ dev = [
 
 [project.urls]
 homepage = "https://github.com/aiortc/pylibsrtp"
+changelog = "https://pylibsrtp.readthedocs.io/en/stable/changelog.html"
 documentation = "https://pylibsrtp.readthedocs.io/"
 
 [tool.coverage.run]

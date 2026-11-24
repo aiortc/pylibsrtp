@@ -5,7 +5,7 @@ from typing import Any, cast
 from ._binding import ffi, lib
 
 __all__ = ["Error", "Policy", "Session", "__version__"]
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 
 ERRORS = [
