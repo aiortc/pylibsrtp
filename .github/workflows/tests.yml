@@ -4,6 +4,22 @@ on: [push, pull_request]
 
 jobs:
 
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+      - name: Install OS packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install libsrtp2-dev
+      - name: Build documentation
+        run: |
+          pip install . -r requirements/docs.txt
+          make -C docs html SPHINXOPTS=-W
+
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -12,11 +28,12 @@ jobs:
         with:
           python-version: '3.10'
       - name: Install packages
-        run: pip install check-manifest ruff
+        run: pip install -r requirements/lint.txt
       - name: Run linters
         run: |
           ruff check .
           ruff format --check --diff .
+          mypy
           check-manifest
 
   test:

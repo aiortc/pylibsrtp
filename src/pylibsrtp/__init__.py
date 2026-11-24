@@ -1,5 +1,6 @@
+from collections.abc import Callable
 from socket import htonl
-from typing import Optional
+from typing import Any, cast
 
 from ._binding import ffi, lib
 
@@ -54,7 +55,7 @@ class Error(Exception):
     pass
 
 
-def _srtp_assert(rc):
+def _srtp_assert(rc: int) -> None:
     if rc != lib.srtp_err_status_ok:
         raise Error(ERRORS[rc])
 
@@ -84,12 +85,13 @@ class Policy:
 
     def __init__(
         self,
-        key: Optional[bytes] = None,
+        key: bytes | None = None,
         ssrc_type: int = SSRC_UNDEFINED,
         ssrc_value: int = 0,
         srtp_profile: int = SRTP_PROFILE_AES128_CM_SHA1_80,
     ) -> None:
-        self._policy = ffi.new("srtp_policy_t *")
+        # cffi's type stubs do not know the fields of the C struct.
+        self._policy = cast(Any, ffi.new("srtp_policy_t *"))
         self._srtp_profile = srtp_profile
 
         _srtp_assert(
@@ -112,23 +114,23 @@ class Policy:
         """
         Whether retransmissions of packets with the same sequence number are allowed.
         """
-        return self._policy.allow_repeat_tx == 1
+        return bool(self._policy.allow_repeat_tx == 1)
 
     @allow_repeat_tx.setter
     def allow_repeat_tx(self, allow_repeat_tx: bool) -> None:
         self._policy.allow_repeat_tx = 1 if allow_repeat_tx else 0
 
     @property
-    def key(self) -> Optional[bytes]:
+    def key(self) -> bytes | None:
         """
         The SRTP master key + master salt.
         """
         if self.__cdata is None:
             return None
-        return ffi.buffer(self.__cdata)
+        return bytes(ffi.buffer(self.__cdata))
 
     @key.setter
-    def key(self, key: Optional[bytes]) -> None:
+    def key(self, key: bytes | None) -> None:
         if key is None:
             # Clear the key.
             self.__cdata = None
@@ -142,7 +144,7 @@ class Policy:
         if not isinstance(key, bytes):
             raise TypeError("key must be bytes")
         if len(key) < expected_length:
-            raise ValueError("key must contain at least %d bytes" % expected_length)
+            raise ValueError(f"key must contain at least {expected_length} bytes")
         self.__cdata = ffi.new("unsigned char[]", len(key))
         self.__cdata[0 : len(key)] = key
         self._policy.key = self.__cdata
@@ -159,7 +161,7 @@ class Policy:
         """
         The SSRC type.
         """
-        return self._policy.ssrc.type
+        return int(self._policy.ssrc.type)
 
     @ssrc_type.setter
     def ssrc_type(self, ssrc_type: int) -> None:
@@ -170,7 +172,7 @@ class Policy:
         """
         The SSRC value, if it is not a wildcard.
         """
-        return self._policy.ssrc.value
+        return int(self._policy.ssrc.value)
 
     @ssrc_value.setter
     def ssrc_value(self, ssrc_value: int) -> None:
@@ -181,7 +183,7 @@ class Policy:
         """
         The window size to use for replay protection.
         """
-        return self._policy.window_size
+        return int(self._policy.window_size)
 
     @window_size.setter
     def window_size(self, window_size: int) -> None:
@@ -196,7 +198,7 @@ class Session:
     :func:`add_stream` method.
     """
 
-    def __init__(self, policy: Optional[Policy] = None) -> None:
+    def __init__(self, policy: Policy | None = None) -> None:
         srtp = ffi.new("srtp_t *")
 
         if policy is None:
@@ -262,7 +264,9 @@ class Session:
         """
         return self.__process(packet, lib.srtp_unprotect_rtcp)
 
-    def __process(self, data, func, trailer=0):
+    def __process(
+        self, data: bytes, func: Callable[[Any, Any, Any], int], trailer: int = 0
+    ) -> bytes:
         if not isinstance(data, bytes):
             raise TypeError("packet must be bytes")
         if len(data) > len(self._cdata) - trailer:
@@ -272,7 +276,7 @@ class Session:
         len_p[0] = len(data)
         self._buffer[0 : len(data)] = data
         _srtp_assert(func(self._srtp[0], self._cdata, len_p))
-        return self._buffer[0 : len_p[0]]
+        return bytes(self._buffer[0 : len_p[0]])
 
 
 lib.srtp_init()
