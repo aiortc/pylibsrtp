@@ -37,6 +37,7 @@ ERRORS = [
     "error MKI present in packet is invalid",
     "packet index is too old to consider",
     "packet index advanced, reset needed",
+    "cryptex error",
 ]
 
 
@@ -80,8 +81,11 @@ class Policy:
     SSRC_SPECIFIC = lib.ssrc_specific
     #: Indicates any inbound SSRC value
     SSRC_ANY_INBOUND = lib.ssrc_any_inbound
-    #: Indicates any inbound SSRC value
+    #: Indicates any outbound SSRC value
     SSRC_ANY_OUTBOUND = lib.ssrc_any_outbound
+
+    #: Whether cryptex (:rfc:`9335`) is supported, see :attr:`use_cryptex`
+    CRYPTEX_SUPPORTED = bool(lib.PYLIBSRTP_CRYPTEX_SUPPORTED)
 
     def __init__(
         self,
@@ -93,6 +97,7 @@ class Policy:
         # cffi's type stubs do not know the fields of the C struct.
         self._policy = cast(Any, ffi.new("srtp_policy_t *"))
         self._srtp_profile = srtp_profile
+        self._use_cryptex = False
 
         _srtp_assert(
             lib.srtp_crypto_policy_set_from_profile_for_rtp(
@@ -179,6 +184,30 @@ class Policy:
         self._policy.ssrc.value = ssrc_value
 
     @property
+    def use_cryptex(self) -> bool:
+        """
+        Whether to use cryptex (:rfc:`9335`), which encrypts RTP header extensions
+        and CSRCs.
+
+        Enabling cryptex raises :class:`Error` unless :attr:`CRYPTEX_SUPPORTED` is
+        true, which requires pylibsrtp to be built against libsrtp 2.8.0 or later.
+
+        .. note::
+
+            An RTP packet which has CSRCs but no header extension must be given
+            an empty header extension (``0xBEDE`` with a length of zero) before
+            it is protected, as required by :rfc:`9335#section-5.1`. libsrtp
+            does not add it, and raises :class:`Error` instead.
+        """
+        return self._use_cryptex
+
+    @use_cryptex.setter
+    def use_cryptex(self, use_cryptex: bool) -> None:
+        if use_cryptex and not self.CRYPTEX_SUPPORTED:
+            raise Error("unsupported operation")
+        self._use_cryptex = bool(use_cryptex)
+
+    @property
     def window_size(self) -> int:
         """
         The window size to use for replay protection.
@@ -211,6 +240,9 @@ class Session:
         self._buffer = ffi.buffer(self._cdata)
         self._srtp = ffi.gc(srtp, lambda x: lib.srtp_dealloc(x[0]))
 
+        if policy is not None:
+            self.__apply_cryptex(policy)
+
     def add_stream(self, policy: Policy) -> None:
         """
         Add a stream to the SRTP session, applying the given `policy`
@@ -219,6 +251,7 @@ class Session:
         :param policy: :class:`Policy`
         """
         _srtp_assert(lib.srtp_add_stream(self._srtp[0], policy._policy))
+        self.__apply_cryptex(policy)
 
     def remove_stream(self, ssrc: int) -> None:
         """
@@ -263,6 +296,16 @@ class Session:
         :rtype: :class:`bytes`
         """
         return self.__process(packet, lib.srtp_unprotect_rtcp)
+
+    def __apply_cryptex(self, policy: Policy) -> None:
+        # libsrtp 2.x does not store cryptex in the policy, it is enabled on the
+        # stream, or on the template for wildcard SSRC types, once it exists.
+        if policy.use_cryptex:
+            _srtp_assert(
+                lib.pylibsrtp_set_stream_use_cryptex(
+                    self._srtp[0], ffi.addressof(policy._policy.ssrc), 1
+                )
+            )
 
     def __process(
         self, data: bytes, func: Callable[[Any, Any, Any], int], trailer: int = 0

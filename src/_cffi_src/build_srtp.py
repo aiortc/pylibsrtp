@@ -1,6 +1,8 @@
+import os
 import sys
+import tempfile
 
-from cffi import FFI
+from cffi import FFI, VerificationError
 
 libraries = ["srtp2"]
 if sys.platform == "win32":
@@ -8,9 +10,68 @@ if sys.platform == "win32":
 else:
     libraries += ["crypto"]
 
+
+def has_cryptex() -> bool:
+    """
+    Check whether libsrtp supports cryptex (RFC 9335), added in libsrtp 2.8.0.
+
+    libsrtp's public headers do not define a version macro, so check whether a
+    module referencing `srtp_set_stream_use_cryptex` builds.
+
+    If PYLIBSRTP_REQUIRE_CRYPTEX=1 is set in the environment, a failed check is
+    an error rather than building without cryptex.
+    """
+    probe = FFI()
+    probe.set_source(
+        "_pylibsrtp_cryptex_probe",
+        """
+#include <srtp2/srtp.h>
+srtp_err_status_t (*pylibsrtp_probe)(srtp_t, const srtp_ssrc_t *, int) =
+    srtp_set_stream_use_cryptex;
+""",
+        libraries=libraries,
+    )
+    with tempfile.TemporaryDirectory() as tmpdir:
+        try:
+            probe.compile(tmpdir=tmpdir)
+        except VerificationError as exc:
+            if os.environ.get("PYLIBSRTP_REQUIRE_CRYPTEX") == "1":
+                raise RuntimeError(
+                    "PYLIBSRTP_REQUIRE_CRYPTEX=1 is set, "
+                    "but libsrtp does not support cryptex"
+                ) from exc
+            print(
+                "libsrtp does not support cryptex, building without it "
+                "(the compiler error above is expected)"
+            )
+            return False
+    return True
+
+
+# The wrapper has its own name, so that the fallback never clashes with
+# libsrtp's declaration, for instance if the check failed to link.
+if has_cryptex():
+    cryptex_source = """
+#define PYLIBSRTP_CRYPTEX_SUPPORTED 1
+static srtp_err_status_t pylibsrtp_set_stream_use_cryptex(
+    srtp_t session, const srtp_ssrc_t *ssrc, int enable) {
+  return srtp_set_stream_use_cryptex(session, ssrc, enable);
+}
+"""
+else:
+    cryptex_source = """
+#define PYLIBSRTP_CRYPTEX_SUPPORTED 0
+static srtp_err_status_t pylibsrtp_set_stream_use_cryptex(
+    srtp_t session, const srtp_ssrc_t *ssrc, int enable) {
+  return srtp_err_status_no_such_op;
+}
+"""
+
 ffibuilder = FFI()
 ffibuilder.set_source(
-    "pylibsrtp._binding", "#include <srtp2/srtp.h>", libraries=libraries
+    "pylibsrtp._binding",
+    "#include <srtp2/srtp.h>\n" + cryptex_source,
+    libraries=libraries,
 )
 
 ffibuilder.cdef(
@@ -81,6 +142,10 @@ srtp_err_status_t srtp_protect_rtcp(srtp_t ctx, void *rtcp_hdr, int *pkt_octet_l
 
 srtp_err_status_t srtp_unprotect(srtp_t ctx, void *srtp_hdr, int *len_ptr);
 srtp_err_status_t srtp_unprotect_rtcp(srtp_t ctx, void *srtcp_hdr, int *pkt_octet_len);
+
+#define PYLIBSRTP_CRYPTEX_SUPPORTED ...
+srtp_err_status_t pylibsrtp_set_stream_use_cryptex(
+    srtp_t session, const srtp_ssrc_t *ssrc, int enable);
 """
 )
 
