@@ -1,0 +1,4 @@
+check-manifest
+mypy
+ruff
+types-cffi

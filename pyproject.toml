@@ -1,5 +1,5 @@
 [build-system]
-requires = ["cffi>=1.0.0", "setuptools", "wheel"]
+requires = ["cffi>=1.0.0", "setuptools>=70.1"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -40,12 +40,17 @@ documentation = "https://pylibsrtp.readthedocs.io/"
 [tool.coverage.run]
 source = ["pylibsrtp"]
 
+[tool.mypy]
+files = ["src", "tests"]
+strict = true
+
 [tool.ruff.lint]
 select = [
     "E",  # pycodestyle
     "F",  # Pyflakes
     "W",  # pycodestyle
     "I",  # isort
+    "UP",  # pyupgrade
 ]
 
 [tool.setuptools.dynamic]
